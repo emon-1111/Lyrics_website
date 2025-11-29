@@ -1,0 +1,198 @@
+/* GENERAL */
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    color: #fff;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+    width: 100%;
+    height: 80px; /* slightly smaller */
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #333; /* thinner line */
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* NAV ITEMS */
+.nav-items {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-items button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.nav-items button:hover {
+    background: #222; /* subtle hover */
+}
+
+/* MENU BUTTON */
+.menu {
+    position: relative;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.menu i {
+    color: white;
+}
+
+/* PAGE STYLE */
+.page {
+    display: none;
+    padding: 35px;
+}
+
+.page.active {
+    display: block;
+}
+
+.placeholder {
+    margin-top: 15px;
+    color: #777;
+}
+
+/* SEARCH BOX */
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 260px;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #333;
+    color: white;
+    border-radius: 6px;
+}
+
+.search-box button {
+    padding: 10px 15px;
+    background: #222;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background: #333;
+}
+
+/* MENU DROPDOWN */
+.menu-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 250px;
+    background: #111;
+    border: 1px solid #333;
+    padding: 8px 12px; /* smaller padding for tighter layout */
+    display: none;
+    flex-direction: column;
+    gap: 6px; /* smaller gap between buttons */
+    z-index: 100;
+    border-radius: 6px;
+}
+
+.menu-dropdown.show {
+    display: flex;
+}
+
+.menu-dropdown button {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.menu-dropdown button i {
+    width: 20px;
+    text-align: center;
+}
+
+.menu-dropdown button:hover {
+    background: #222; /* same hover effect as nav items */
+}
+
+/* SECTION DIVIDERS */
+.menu-dropdown hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 4px 0; /* smaller margin */
+}
+
+/* SELECT PLAYLIST */
+.select-playlist {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-playlist i {
+    color: white;
+    width: 20px;
+    text-align: center;
+}
+
+.select-playlist select {
+    background: #111;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 6px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1;
+    border-radius: 6px;
+}
+
+.select-playlist select:hover {
+    background: #222;
+}
+
+/* LOGOUT BUTTON */
+.logout {
+    background: #300;
+    border-color: #600;
+    border-radius: 6px;
+}
+
+.logout:hover {
+    background: #500;
+}

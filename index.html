@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyrics Sphere</title>
+
+<!-- Spotify-style font -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV BAR -->
+<nav class="navbar">
+    <div class="logo">Lyrics Sphere</div>
+
+    <div class="nav-items">
+        <button onclick="showPage('songs')"><i class="fa-solid fa-music"></i> Songs</button>
+        <button onclick="showPage('playlist')"><i class="fa-solid fa-list"></i> Playlist</button>
+        <button onclick="showPage('create')"><i class="fa-solid fa-plus"></i> Create</button>
+        <button onclick="showPage('search')"><i class="fa-solid fa-search"></i> Search</button>
+    </div>
+
+    <!-- HAMBURGER MENU -->
+    <div class="menu" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+
+        <!-- MENU DROPDOWN -->
+        <div class="menu-dropdown" id="menuDropdown">
+            <button><i class="fa-solid fa-rotate-right"></i> Refresh Songs</button>
+
+            <hr>
+
+            <button><i class="fa-solid fa-music"></i> Song</button>
+            <button><i class="fa-solid fa-list"></i> Playlist</button>
+            <button><i class="fa-solid fa-search"></i> Search</button>
+
+            <hr>
+
+            <button><i class="fa-solid fa-plus"></i> Create Song</button>
+            <button><i class="fa-solid fa-pen"></i> Edit Song</button>
+            <button><i class="fa-solid fa-folder-plus"></i> Add to Playlist</button>
+
+            <div class="select-playlist">
+                <i class="fa-solid fa-list"></i>
+                <select>
+                    <option>Select Playlist</option>
+                    <option>Playlist 1</option>
+                    <option>Playlist 2</option>
+                </select>
+            </div>
+
+            <button><i class="fa-solid fa-trash"></i> Delete Song</button>
+            <button class="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </div>
+</nav>
+
+<!-- SONG PAGE -->
+<section id="songs" class="page active">
+    <h1>0 Songs</h1>
+    <p class="placeholder">No songs found.</p>
+</section>
+
+<!-- PLAYLIST PAGE -->
+<section id="playlist" class="page">
+    <h1>Playlist</h1>
+    <p class="placeholder">No playlists yet.</p>
+</section>
+
+<!-- CREATE PAGE -->
+<section id="create" class="page">
+    <h1>Create</h1>
+    <p class="placeholder">Tools coming soon.</p>
+</section>
+
+<!-- SEARCH PAGE -->
+<section id="search" class="page">
+    <div class="search-box">
+        <input type="text" placeholder="Search songs...">
+        <button>Search</button>
+    </div>
+    <p class="placeholder">Search results will appear here.</p>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

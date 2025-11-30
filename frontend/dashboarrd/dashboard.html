@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Lyrics Scroller Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Music Lyrics Scroller</h1>
+      <nav>
+        <a href="../login/signup/index.html">Login/Signup</a>
+      </nav>
+    </header>
+    <main>
+      <section id="song-selector">
+        <h2>Select a Song</h2>
+        <select id="song-list">
+          <option value="">Choose a song...</option>
+        </select>
+      </section>
+      <section id="lyrics-display">
+        <h2>Lyrics</h2>
+        <div id="lyrics-container">
+          <p id="lyrics-text">Select a song to view lyrics.</p>
+        </div>
+        <button id="scroll-btn">Start Scrolling</button>
+      </section>
+    </main>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

@@ -99,7 +99,7 @@ input{
 /* --- Clickable hover text --- */
 .muted.clickable {
   transition: color var(--transition);
-  cursor: default; /* keep default cursor */
+  cursor: pointer; /* keep default cursor */
   color: var(--muted); /* default gray */
 }
 
@@ -124,4 +124,5 @@ input{
   background: #d1d1d1; /* light gray hover */
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  cursor: pointer;
 }

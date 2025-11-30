@@ -1,33 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Lyrics Scroller Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/dashboard.css" />
-  </head>
-  <body>
-    <header>
-      <h1>Music Lyrics Scroller</h1>
-      <nav>
-        <a href="login.html">Login/Signup</a>
-      </nav>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LyricScroll • Dashboard</title>
+
+  <!-- Add FontAwesome for industrial icons -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer"
+  />
+
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+
+      <!-- NEW LOGO (same style as login page) -->
+      <img src="../assets/images/transparent_logo.png" class="logo-img" alt="Logo">
+
+      <!-- NEW NAME (same as login page) -->
+      <div class="title">Lyrics Sphere</div>
+    </div>
+
+    <nav class="menu">
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-rotate-right"></i> Refresh Songs
+      </button>
+
+      <button class="menu-btn active">
+        <i class="fa-solid fa-music"></i> Song
+      </button>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-list"></i> Playlist
+      </button>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-magnifying-glass"></i> Search
+      </button>
+
+      <div class="divider"></div>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-plus"></i> Create Song
+      </button>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Song
+      </button>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-folder-plus"></i> Add to Playlist
+      </button>
+
+      <button class="menu-btn">
+        <i class="fa-solid fa-folder-tree"></i> Select Playlist
+      </button>
+
+      <div class="danger-wrap">
+        <button class="menu-btn danger">
+          <i class="fa-solid fa-trash"></i> Delete Song
+        </button>
+      </div>
+
+    </nav>
+
+    <button class="logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="main-head">
+      <div>
+        <h1>Your Library</h1>
+        <p class="subtitle">Explore your favorite songs and lyrics</p>
+      </div>
     </header>
-    <main>
-      <section id="song-selector">
-        <h2>Select a Song</h2>
-        <select id="song-list">
-          <option value="">Choose a song...</option>
-        </select>
-      </section>
-      <section id="lyrics-display">
-        <h2>Lyrics</h2>
-        <div id="lyrics-container">
-          <p id="lyrics-text">Select a song to view lyrics.</p>
-        </div>
-        <button id="scroll-btn">Start Scrolling</button>
-      </section>
-    </main>
-    <script src="../assets/js/dashboard.js"></script>
-  </body>
+
+    <section id="song-list" class="song-list"></section>
+  </main>
+
+  <script src="../assets/js/dashboard.js"></script>
+</body>
 </html>

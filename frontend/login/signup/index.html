@@ -1,100 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LyricScroll • Login & Signup</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <main class="page">
-    <section class="card-wrap">
-      <header class="brand">
-        <div class="music-icon" aria-hidden="true">🎵</div>
-        <h1 class="brand-title">Lyric Sphere</h1>
-        <p class="brand-sub">Scroll Sing Repeat</p>
-      </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LyricScroll • Login & Signup</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card-wrap">
+        <header class="brand">
+          <img
+            src="/frontend/image/transparent_logo.png"
+            alt="Logo"
+            class="logo"
+          />
+        </header>
 
-      <!-- LOGIN FORM -->
-      <form id="login-form" class="card" novalidate>
-        <h2 class="card-title">Welcome back</h2>
+        <!-- LOGIN FORM -->
+        <form id="login-form" class="card" novalidate>
+          <h2 class="card-title">Welcome back</h2>
 
-        <label class="field">
-          <span class="field-label">Email</span>
-          <div class="input-row">
-            <span class="field-icon" aria-hidden="true"></span>
-            <input id="login-email" name="email" type="email" inputmode="email" placeholder="you@gmail.com" autocomplete="email" required>
-            <span class="validation-icon" aria-hidden="true"></span>
-          </div>
-          <div id="login-email-error" class="field-error" aria-live="polite"></div>
-        </label>
+          <label class="field">
+            <span class="field-label">Email</span>
+            <div class="input-row">
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-envelope"></i
+              ></span>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                inputmode="email"
+                placeholder="you@gmail.com"
+                autocomplete="email"
+                required
+              />
+              <span class="validation-icon" aria-hidden="true"></span>
+            </div>
+            <div
+              id="login-email-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
 
-        <label class="field">
-          <span class="field-label">Password</span>
-          <div class="input-row">
-            <span class="field-icon" aria-hidden="true"><i class="fa-solid fa-key"></i>
-</span>
-            <input id="login-password" name="password" type="password" placeholder="Your password" autocomplete="current-password" required>
-            <button type="button" class="eye-btn" id="login-toggle-pw" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
-            <span class="validation-icon" aria-hidden="true"></span>
-          </div>
-          <div id="login-password-error" class="field-error" aria-live="polite"></div>
-        </label>
+          <label class="field">
+            <span class="field-label">Password</span>
+            <div class="input-row">
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-key"></i>
+              </span>
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                placeholder="Your password"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                id="login-toggle-pw"
+                aria-label="Show password"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <span class="validation-icon" aria-hidden="true"></span>
+            </div>
+            <div
+              id="login-password-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+            <div class="fgt-pw">Forgot password?<u>click here</u></div>
+          </label>
 
-        <button type="submit" class="btn primary">Log in</button>
+          <button type="submit" class="btn primary">Log in</button>
+          
 
+          <p class="muted clickable" id="to-signup-wrapper">
+            Don’t have an account? <span id="to-signup"><u>Sign up</u></span>
+          </p>
+        </form>
 
-        <p class="muted clickable" id="to-signup-wrapper">
-          Don’t have an account? <span id="to-signup"><u>Sign up</u></span>
-        </p>
-      </form>
+        <!-- SIGNUP FORM -->
+        <form id="signup-form" class="card hidden" novalidate>
+          <h2 class="card-title">Create account</h2>
 
-      <!-- SIGNUP FORM -->
-      <form id="signup-form" class="card hidden" novalidate>
-        <h2 class="card-title">Create account</h2>
+          <label class="field">
+            <span class="field-label">Full name</span>
+            <div class="input-row">
+              <span class="field-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+              <input
+                id="signup-name"
+                name="name"
+                type="text"
+                placeholder="Your full name"
+                autocomplete="name"
+                required
+              />
+              <span class="validation-icon" aria-hidden="true"></span>
+            </div>
+            <div
+              id="signup-name-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
 
-        <label class="field">
-          <span class="field-label">Full name</span>
-          <div class="input-row">
-            <span class="field-icon" aria-hidden="true">👤</span>
-            <input id="signup-name" name="name" type="text" placeholder="Your full name" autocomplete="name" required>
-            <span class="validation-icon" aria-hidden="true"></span>
-          </div>
-          <div id="signup-name-error" class="field-error" aria-live="polite"></div>
-        </label>
+          <label class="field">
+            <span class="field-label">Email</span>
+            <div class="input-row">
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-envelope"></i
+              ></span>
+              <input
+                id="signup-email"
+                name="email"
+                type="email"
+                inputmode="email"
+                placeholder="you@gmail.com"
+                autocomplete="email"
+                required
+              />
+              <span class="validation-icon" aria-hidden="true"></span>
+            </div>
+            <div
+              id="signup-email-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
 
-        <label class="field">
-          <span class="field-label">Email</span>
-          <div class="input-row">
-            <span class="field-icon" aria-hidden="true">✉️</span>
-            <input id="signup-email" name="email" type="email" inputmode="email" placeholder="you@gmail.com" autocomplete="email" required>
-            <span class="validation-icon" aria-hidden="true"></span>
-          </div>
-          <div id="signup-email-error" class="field-error" aria-live="polite"></div>
-        </label>
+          <label class="field">
+            <span class="field-label">Password</span>
+            <div class="input-row">
+              <span class="field-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span>
+              <input
+                id="signup-password"
+                name="password"
+                type="password"
+                placeholder="At least 6 characters"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                id="signup-toggle-pw"
+                aria-label="Show password"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <span class="validation-icon" aria-hidden="true"></span>
+            </div>
+            <div
+              id="signup-password-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
 
-        <label class="field">
-          <span class="field-label">Password</span>
-          <div class="input-row">
-            <span class="field-icon" aria-hidden="true">🔒</span>
-            <input id="signup-password" name="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" required>
-            <button type="button" class="eye-btn" id="signup-toggle-pw" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
-            <span class="validation-icon" aria-hidden="true"></span>
-          </div>
-          <div id="signup-password-error" class="field-error" aria-live="polite"></div>
-        </label>
+          <button type="submit" class="btn primary">Sign up</button>
 
-        <button type="submit" class="btn primary">Sign up</button>
+          <p class="muted clickable" id="to-login-wrapper">
+            Already have an account? <span id="to-login"><u>Log in</u></span>
+          </p>
+        </form>
+      </section>
+    </main>
 
-        <p class="muted clickable" id="to-login-wrapper">
-          Already have an account? <span id="to-login">Log in</span>
-        </p>
-      </form>
-    </section>
-  </main>
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>

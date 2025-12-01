@@ -48,7 +48,13 @@ a {
     color: #888;
 }
 
-.nav-btn .btn {
+/* Auth Buttons */
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.login-btn {
     padding: 0.5rem 1.5rem;
     border: 2px solid #fff;
     border-radius: 25px;
@@ -58,9 +64,23 @@ a {
     transition: all 0.3s;
 }
 
-.nav-btn .btn:hover {
+.login-btn:hover {
     background-color: #fff;
     color: #0a0a0a;
+}
+
+.signup-btn {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #fff;
+    border-radius: 25px;
+    background-color: #fff;
+    color: #0a0a0a;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.signup-btn:hover {
+    background-color: #d6d6d6;
 }
 
 /* Hero Section */
@@ -152,6 +172,11 @@ footer p {
     .nav-links {
         display: none;
     }
+
+    .auth-buttons {
+        display: none;
+    }
+
     .navbar {
         justify-content: space-between;
     }

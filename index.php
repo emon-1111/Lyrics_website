@@ -15,21 +15,21 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../assets/css/login.css" />
+    <link rel="stylesheet" href="assets/css/index.css" />
   </head>
   <body>
     <main class="page">
       <section class="card-wrap">
         <header class="brand">
           <img
-            src="../assets/images/transparent_logo.png"
+            src="assets/images/transparent_logo.png"
             alt="Logo"
             class="logo"
           />
         </header>
 
         <!-- LOGIN FORM -->
-        <form id="login-form" class="card" novalidate>
+        <form id="login-form" class="card" method="POST" action="../auth/login.php">
           <h2 class="card-title">Welcome back</h2>
 
           <label class="field">
@@ -92,12 +92,12 @@
           
 
           <p class="muted clickable" id="to-signup-wrapper">
-            Don’t have an account? <span id="to-signup"><u>Sign up</u></span>
+            Don't have an account? <span id="to-signup"><u>Sign up</u></span>
           </p>
         </form>
 
         <!-- SIGNUP FORM -->
-        <form id="signup-form" class="card hidden" novalidate>
+        <form id="signup-form" class="card hidden" method="POST" action="../auth/signup.php">
           <h2 class="card-title">Create account</h2>
 
           <label class="field">
@@ -183,6 +183,6 @@
       </section>
     </main>
 
-    <script src="../assets/js/login.js"></script>
+    <script src="assets/js/index.js"></script>
   </body>
 </html>

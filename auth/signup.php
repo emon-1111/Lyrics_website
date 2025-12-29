@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $stmt->get_result();
     
     if ($result->num_rows > 0) {
-        echo "<script>alert('Email already exists'); window.location.href='../frontend/index.php';</script>";
+        echo "<script>alert('Email already exists'); window.location.href='../index.php';</script>";
         exit;
     }
 
@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("sss", $name, $email, $pw);
     
     if ($stmt->execute()) {
-        echo "<script>alert('Account created successfully! Please login.'); window.location.href='../frontend/index.php';</script>";
+        echo "<script>alert('Account created successfully! Please login.'); window.location.href='../index.php';</script>";
     } else {
-        echo "<script>alert('Error creating account: " . $conn->error . "'); window.location.href='../frontend/index.php';</script>";
+        echo "<script>alert('Error creating account: " . $conn->error . "'); window.location.href='../index.php';</script>";
     }
     
     $stmt->close();

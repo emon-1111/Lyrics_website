@@ -22,14 +22,14 @@
       <section class="card-wrap">
         <header class="brand">
           <img
-            src="assets/images/transparent_logo.png"
+            src="./frontend/assets/images/transparent_logo.png"
             alt="Logo"
             class="logo"
           />
         </header>
 
         <!-- LOGIN FORM -->
-        <form id="login-form" class="card" method="POST" action="../auth/login.php">
+        <form id="login-form" class="card" method="POST" action="./auth/login.php">
           <h2 class="card-title">Welcome back</h2>
 
           <label class="field">
@@ -97,7 +97,7 @@
         </form>
 
         <!-- SIGNUP FORM -->
-        <form id="signup-form" class="card hidden" method="POST" action="../auth/signup.php">
+        <form id="signup-form" class="card hidden" method="POST" action="./auth/signup.php">
           <h2 class="card-title">Create account</h2>
 
           <label class="field">

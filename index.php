@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/index.css" />
+    <link rel="stylesheet" href="./frontend/assets/css/index.css" />
   </head>
   <body>
     <main class="page">
@@ -183,6 +183,6 @@
       </section>
     </main>
 
-    <script src="assets/js/index.js"></script>
+    <script src="./frontend/assets/js/index.js"></script>
   </body>
 </html>

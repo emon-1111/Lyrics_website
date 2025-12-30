@@ -1,0 +1,103 @@
+:root {
+  --bg: #000;
+  --bar: #0a0a0a;
+  --card: #141414;
+  --text: #fff;
+  --dim: #888;
+  --line: #1f1f1f;
+}
+
+body {
+  background: var(--bg);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  margin: 0;
+}
+
+.create-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.create-container label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: 500; }
+.create-container input[type="text"] {
+  width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--bar); color: var(--text);
+}
+.create-container input[disabled] { background: #333; color: #aaa; }
+
+.button-group-top, .button-group-bottom {
+  display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;
+}
+.button-group-bottom { margin-top: 10px; }
+
+button {
+  background: var(--bar);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+button:hover { background: var(--line); }
+
+.part-container {
+  margin-top: 20px; border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px; position: relative; background: var(--bg);
+}
+.part-header { display: flex; align-items: center; gap: 10px; }
+.part-header input {
+  flex: 1; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--bar); color: var(--text);
+}
+.part-actions { display: flex; gap: 5px; }
+.part-actions button { padding: 4px 6px; font-size: 12px; }
+.part-actions button i { pointer-events: none; }
+
+.part-textarea {
+  width: 100%; margin-top: 8px; padding: 8px;
+  background: var(--bar); color: var(--text);
+  border-radius: 6px; border: 1px solid var(--line);
+  min-height: 100px; resize: vertical;
+}
+/* Info popup box */
+.info-box-toggle {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.info-box-toggle i {
+  font-size: 16px;
+  color: #fff; /* keep icon visible */
+}
+
+.info-box {
+  display: none; /* hidden by default */
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff; /* white background */
+  color: #000;     /* black text */
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  width: 150px; /* compact width */
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  z-index: 100;
+  text-align: left;
+}
+
+.info-box-toggle.active .info-box {
+  display: block;
+}
+

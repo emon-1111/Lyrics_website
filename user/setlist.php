@@ -9,10 +9,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - LyricScroll</title>
+<title>Setlists - LyricScroll</title>
 <link rel="stylesheet" href="../frontend/assets/css/user.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -23,7 +22,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     <img src="../frontend/assets/images/transparent_logo.png" class="logo" alt="Logo">
   </div>
 
-  <div class="nav-item active" data-page="dashboard.php">
+  <div class="nav-item" data-page="dashboard.php">
     <i class="fa-solid fa-home icon"></i><span>Dashboard</span>
   </div>
 
@@ -31,7 +30,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     <i class="fa-solid fa-music icon"></i><span>Songs</span>
   </div>
 
-  <div class="nav-item" data-page="setlist.php">
+  <div class="nav-item active" data-page="setlist.php">
     <i class="fa-solid fa-list icon"></i><span>Setlists</span>
   </div>
 
@@ -48,37 +47,30 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   </div>
 </nav>
 
-<div class="side-menu" id="sideMenu">
-  <div class="side-menu-header">
-    <span>Menu</span>
-    <i class="fa-solid fa-xmark close-btn" id="closeMenu"></i>
-  </div>
-  <ul class="dropdown-menu" id="dropdownMenu">
-    <li data-link="dashboard.php"><i class="fa-solid fa-home"></i> Dashboard</li>
-    <li data-link="song.php"><i class="fa-solid fa-music"></i> Songs</li>
-    <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Setlists</li>
-    <li data-link="search.php"><i class="fa-solid fa-magnifying-glass"></i> Search</li>
-    <hr>
-    <li data-link="create.php"><i class="fa-solid fa-plus"></i> Create Song</li>
-    <hr>
-    <li class="logout" data-link="../auth/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-  </ul>
-</div>
+<ul class="dropdown-menu" id="dropdownMenu">
+  <li data-link="dashboard.php"><i class="fa-solid fa-home"></i> Dashboard</li>
+  <li data-link="song.php"><i class="fa-solid fa-music"></i> Songs</li>
+  <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Setlists</li>
+  <li data-link="search.php"><i class="fa-solid fa-magnifying-glass"></i> Search</li>
+  <hr>
+  <li data-link="create.php"><i class="fa-solid fa-plus"></i> Create Song</li>
+  <hr>
+  <li class="logout" data-link="../auth/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+</ul>
 
 <div class="overlay" id="overlay"></div>
 
 <section class="page-content dashboard">
   <div class="panel">
-    <h2>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
-    <p>Manage your songs and setlists</p>
+    <h2>My Setlists</h2>
+    <p>Organize your songs into setlists</p>
     <div class="btn-group">
-      <button onclick="window.location.href='song.php'">My Songs</button>
-      <button onclick="window.location.href='setlist.php'">Setlists</button>
+      <button>Create Setlist</button>
+      <button>View All</button>
     </div>
   </div>
 </section>
 
 <script src="../frontend/assets/js/user.js"></script>
-
 </body>
 </html>

@@ -4,7 +4,7 @@ session_start(); // Add this to start sessions
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "lyricscroll";
+$db   = "auth_system";
 $port = 3307; // Your XAMPP MySQL port
 
 $conn = new mysqli($host, $user, $pass, $db, $port);

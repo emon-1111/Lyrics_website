@@ -63,17 +63,94 @@ $stmt->close();
 
 .controls-bar {
   position: fixed;
-  top: 70px;
+  top: 0;
   left: 0;
   right: 0;
   background: var(--bar);
   padding: 15px 20px;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  z-index: 100;
+}
+
+.control-left {
+  flex: 0 0 auto;
+}
+
+.controls-logo {
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+}
+
+.control-center {
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  border-bottom: 1px solid var(--line);
-  z-index: 100;
+  flex: 1;
+}
+
+.control-right {
+  flex: 0 0 auto;
+}
+
+.menu-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.view-dropdown-menu {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  padding: 10px 0;
+  min-width: 200px;
+  display: none;
+  z-index: 1200;
+  list-style: none;
+  margin: 0;
+}
+
+.view-dropdown-menu.active {
+  display: block;
+}
+
+.view-dropdown-menu li {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.view-dropdown-menu li:hover {
+  background: var(--line);
+}
+
+.view-dropdown-menu li.logout {
+  color: #ff4d4d;
+  margin-top: 5px;
+}
+
+.view-dropdown-menu li i {
+  width: 20px;
+  text-align: center;
+}
+
+.view-dropdown-menu hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 5px 0;
 }
 
 .control-group {
@@ -167,38 +244,55 @@ $stmt->close();
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="nav-item logo-container">
-    <img src="../frontend/assets/images/transparent_logo.png" class="logo" alt="Logo">
+<div class="controls-bar">
+  <div class="control-left">
+    <img src="../frontend/assets/images/transparent_logo.png" class="controls-logo" alt="Logo">
   </div>
 
-  <div class="nav-item" data-page="dashboard.php">
-    <i class="fa-solid fa-home icon"></i><span>Dashboard</span>
+  <div class="control-center">
+    <div class="control-group">
+      <span class="control-label">play</span>
+      <button class="control-btn" id="playBtn">
+        <i class="fa-solid fa-play"></i>
+      </button>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">auto scroll</span>
+      <button class="control-btn" id="autoScrollBtn">
+        <i class="fa-solid fa-toggle-off"></i>
+      </button>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">speed: <span class="speed-value" id="speedValue">12</span></span>
+      <button class="control-btn" onclick="changeSpeed(-1)">
+        <i class="fa-solid fa-minus"></i>
+      </button>
+      <button class="control-btn" onclick="changeSpeed(1)">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">size: <span class="size-value" id="sizeValue">20</span></span>
+      <button class="control-btn" onclick="changeSize(-2)">
+        <i class="fa-solid fa-minus"></i>
+      </button>
+      <button class="control-btn" onclick="changeSize(2)">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="nav-item active" data-page="song.php">
-    <i class="fa-solid fa-music icon"></i><span>Songs</span>
+  <div class="control-right">
+    <button class="control-btn menu-btn" id="viewMenuBtn">
+      <i class="fa-solid fa-bars"></i>
+    </button>
   </div>
+</div>
 
-  <div class="nav-item" data-page="setlist.php">
-    <i class="fa-solid fa-list icon"></i><span>Setlists</span>
-  </div>
-
-  <div class="nav-item" data-page="create.php">
-    <i class="fa-solid fa-plus icon"></i><span>Create</span>
-  </div>
-
-  <div class="nav-item" data-page="search.php">
-    <i class="fa-solid fa-magnifying-glass icon"></i><span>Search</span>
-  </div>
-
-  <div class="nav-item" id="menuBtn">
-    <i class="fa-solid fa-bars icon"></i>
-  </div>
-</nav>
-
-<ul class="dropdown-menu" id="dropdownMenu">
-  <li data-link="dashboard.php"><i class="fa-solid fa-home"></i> Dashboard</li>
+<ul class="view-dropdown-menu" id="viewDropdownMenu">
   <li data-link="song.php"><i class="fa-solid fa-music"></i> Songs</li>
   <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Setlists</li>
   <li data-link="search.php"><i class="fa-solid fa-magnifying-glass"></i> Search</li>
@@ -207,42 +301,6 @@ $stmt->close();
   <hr>
   <li class="logout" data-link="../auth/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
 </ul>
-
-<div class="controls-bar">
-  <div class="control-group">
-    <span class="control-label">play</span>
-    <button class="control-btn" id="playBtn">
-      <i class="fa-solid fa-play"></i>
-    </button>
-  </div>
-
-  <div class="control-group">
-    <span class="control-label">auto scroll</span>
-    <button class="control-btn" id="autoScrollBtn">
-      <i class="fa-solid fa-toggle-off"></i>
-    </button>
-  </div>
-
-  <div class="control-group">
-    <span class="control-label">speed: <span class="speed-value" id="speedValue">12</span></span>
-    <button class="control-btn" onclick="changeSpeed(-1)">
-      <i class="fa-solid fa-minus"></i>
-    </button>
-    <button class="control-btn" onclick="changeSpeed(1)">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-  </div>
-
-  <div class="control-group">
-    <span class="control-label">size: <span class="size-value" id="sizeValue">20</span></span>
-    <button class="control-btn" onclick="changeSize(-2)">
-      <i class="fa-solid fa-minus"></i>
-    </button>
-    <button class="control-btn" onclick="changeSize(2)">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-  </div>
-</div>
 
 <div class="lyrics-container" id="lyricsContainer">
   <div class="lyrics-header">
@@ -272,6 +330,28 @@ let scrollInterval;
 const playBtn = document.getElementById('playBtn');
 const autoScrollBtn = document.getElementById('autoScrollBtn');
 const lyricsContainer = document.getElementById('lyricsContainer');
+const viewMenuBtn = document.getElementById('viewMenuBtn');
+const viewDropdownMenu = document.getElementById('viewDropdownMenu');
+
+// Menu toggle
+viewMenuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  viewDropdownMenu.classList.toggle('active');
+});
+
+// Close menu when clicking outside
+document.body.addEventListener('click', () => {
+  viewDropdownMenu.classList.remove('active');
+});
+
+// Navigate on menu click
+document.querySelectorAll('.view-dropdown-menu li[data-link]').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const link = item.getAttribute('data-link');
+    window.location.href = link;
+  });
+});
 
 // Play/Pause
 playBtn.addEventListener('click', () => {

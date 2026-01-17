@@ -10,14 +10,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 $song_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $user_id = $_SESSION['user_id'];
 
-// Fetch song
-$stmt = $conn->prepare("SELECT * FROM songs WHERE id = ? AND user_id = ?");
+// Fetch song - user can view their own songs OR public songs
+$stmt = $conn->prepare("SELECT * FROM songs WHERE id = ? AND (user_id = ? OR is_public = 1)");
 $stmt->bind_param("ii", $song_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    header("Location: song.php");
+    echo "<script>alert('Song not found or you do not have permission to view it'); window.location.href='song.php';</script>";
     exit;
 }
 
@@ -304,16 +304,22 @@ $stmt->close();
 
 <div class="lyrics-container" id="lyricsContainer">
   <div class="lyrics-header">
-    <h1><?php echo htmlspecialchars($song['title']); ?> (<?php echo $song['id']; ?>)</h1>
+    <h1><?php echo htmlspecialchars($song['title']); ?></h1>
     <p><?php echo htmlspecialchars($song['subtitle']); ?></p>
   </div>
 
-  <?php foreach ($parts as $part): ?>
+  <?php if ($parts && is_array($parts)): ?>
+    <?php foreach ($parts as $part): ?>
+      <div class="lyrics-part">
+        <div class="part-name"><?php echo htmlspecialchars($part['name'] ?? $part['label'] ?? 'Section'); ?></div>
+        <div class="part-lyrics"><?php echo htmlspecialchars($part['lyrics'] ?? $part['text'] ?? ''); ?></div>
+      </div>
+    <?php endforeach; ?>
+  <?php else: ?>
     <div class="lyrics-part">
-      <div class="part-name"><?php echo htmlspecialchars($part['name']); ?></div>
-      <div class="part-lyrics"><?php echo htmlspecialchars($part['lyrics']); ?></div>
+      <div class="part-lyrics">No lyrics available</div>
     </div>
-  <?php endforeach; ?>
+  <?php endif; ?>
 </div>
 
 <button class="back-btn" onclick="window.location.href='song.php'">

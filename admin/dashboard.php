@@ -10,13 +10,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $totalUsers = $conn->query("SELECT COUNT(*) as count FROM users WHERE role='user'")->fetch_assoc()['count'];
 $totalSongs = $conn->query("SELECT COUNT(*) as count FROM songs")->fetch_assoc()['count'];
 
-// Fetch only admin's songs (public songs only)
+// Fetch only admin's PUBLIC songs (which users can see)
 $admin_id = $_SESSION['user_id'];
 $stmt = $conn->prepare("
     SELECT s.id, s.title, s.subtitle, s.is_public, s.created_at, u.name as creator_name, u.email as creator_email
     FROM songs s
     LEFT JOIN users u ON s.user_id = u.id
-    WHERE s.user_id = ?
+    WHERE s.user_id = ? AND s.is_public = 1
     ORDER BY s.created_at DESC
 ");
 $stmt->bind_param("i", $admin_id);

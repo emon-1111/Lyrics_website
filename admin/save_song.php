@@ -2,7 +2,7 @@
 include "../config/db.php";
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../index.php");
+    echo "error";
     exit;
 }
 
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_SESSION['user_id'];
     
     if (empty($title) || empty($parts)) {
-        echo "<script>alert('Title and song parts are required'); window.history.back();</script>";
+        echo "error";
         exit;
     }
     
@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("isss", $userId, $title, $subtitle, $parts);
     
     if ($stmt->execute()) {
-        echo "<script>alert('Song created successfully and is now public!'); window.location.href='dashboard.php';</script>";
+        echo "success";
     } else {
-        echo "<script>alert('Error creating song: " . $conn->error . "'); window.history.back();</script>";
+        echo "error";
     }
     
     $stmt->close();

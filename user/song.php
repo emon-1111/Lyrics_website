@@ -215,6 +215,95 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   cursor: pointer;
   font-size: 14px;
 }
+
+/* Custom Alert/Confirm Box */
+.custom-alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  z-index: 10000;
+  min-width: 400px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.custom-alert.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
+}
+.alert-content {
+  text-align: center;
+}
+.alert-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+.alert-icon.success {
+  color: #4ade80;
+}
+.alert-icon.error, .alert-icon.warning {
+  color: #ff4d4d;
+}
+.alert-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.alert-message {
+  font-size: 16px;
+  color: var(--dim);
+  margin-bottom: 25px;
+}
+.alert-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.alert-btn {
+  background: var(--bar);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 12px 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.alert-btn:hover {
+  background: var(--line);
+}
+.alert-btn.danger {
+  background: #ff4d4d;
+  border-color: #ff4d4d;
+}
+.alert-btn.danger:hover {
+  background: #ff3333;
+}
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.alert-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
 </style>
 
 <script>

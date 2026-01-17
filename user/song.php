@@ -115,6 +115,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   <?php $stmt->close(); ?>
 </section>
 
+<!-- Custom Alert Box -->
+<div class="alert-overlay" id="alertOverlay"></div>
+<div class="custom-alert" id="customAlert">
+  <div class="alert-content">
+    <div class="alert-icon" id="alertIcon">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="alert-title" id="alertTitle">Success!</div>
+    <div class="alert-message" id="alertMessage">Action completed!</div>
+    <div class="alert-buttons" id="alertButtons">
+      <button class="alert-btn" onclick="closeAlert()">OK</button>
+    </div>
+  </div>
+</div>
+
 <style>
 .songs-container {
   max-width: 1000px;
@@ -307,25 +322,86 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 </style>
 
 <script>
-async function deleteSong(id) {
-  if (!confirm('Are you sure you want to delete this song?')) return;
+let pendingSongId = null;
+
+function showAlert(type, title, message, buttons = null) {
+  const alert = document.getElementById('customAlert');
+  const overlay = document.getElementById('alertOverlay');
+  const icon = document.getElementById('alertIcon');
+  const alertTitle = document.getElementById('alertTitle');
+  const alertMessage = document.getElementById('alertMessage');
+  const alertButtons = document.getElementById('alertButtons');
+
+  // Set content
+  alertTitle.textContent = title;
+  alertMessage.textContent = message;
+
+  // Set icon
+  if (type === 'success') {
+    icon.className = 'alert-icon success';
+    icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+  } else if (type === 'warning') {
+    icon.className = 'alert-icon warning';
+    icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+  } else {
+    icon.className = 'alert-icon error';
+    icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+  }
+
+  // Set buttons
+  if (buttons) {
+    alertButtons.innerHTML = buttons;
+  } else {
+    alertButtons.innerHTML = '<button class="alert-btn" onclick="closeAlert()">OK</button>';
+  }
+
+  // Show alert
+  overlay.classList.add('show');
+  alert.classList.add('show');
+}
+
+function closeAlert() {
+  const alert = document.getElementById('customAlert');
+  const overlay = document.getElementById('alertOverlay');
   
+  overlay.classList.remove('show');
+  alert.classList.remove('show');
+  pendingSongId = null;
+}
+
+async function deleteSong(id) {
+  pendingSongId = id;
+  showAlert(
+    'warning',
+    'Confirm Delete',
+    'Are you sure you want to delete this song? This action cannot be undone.',
+    `
+      <button class="alert-btn" onclick="closeAlert()">Cancel</button>
+      <button class="alert-btn danger" onclick="confirmDelete()">Delete</button>
+    `
+  );
+}
+
+async function confirmDelete() {
+  if (!pendingSongId) return;
+
   try {
     const response = await fetch('../user/delete_song.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ id: pendingSongId })
     });
     
     const result = await response.json();
     
     if (result.success) {
-      location.reload();
+      showAlert('success', 'Success!', 'Song deleted successfully!');
+      setTimeout(() => location.reload(), 1500);
     } else {
-      alert(result.message);
+      showAlert('error', 'Error', result.message || 'Failed to delete song');
     }
   } catch (error) {
-    alert('Error deleting song');
+    showAlert('error', 'Error', 'Network error. Please try again.');
   }
 }
 </script>

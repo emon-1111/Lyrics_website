@@ -146,6 +146,94 @@ $result = $stmt->get_result();
       margin-bottom: 20px;
       opacity: 0.3;
     }
+    /* Custom Alert/Confirm Box */
+    .custom-alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      z-index: 10000;
+      min-width: 400px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .custom-alert.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: all;
+    }
+    .alert-content {
+      text-align: center;
+    }
+    .alert-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    .alert-icon.success {
+      color: #4ade80;
+    }
+    .alert-icon.error, .alert-icon.warning {
+      color: #ff4d4d;
+    }
+    .alert-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .alert-message {
+      font-size: 16px;
+      color: var(--dim);
+      margin-bottom: 25px;
+    }
+    .alert-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .alert-btn {
+      background: var(--bar);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 12px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .alert-btn:hover {
+      background: var(--line);
+    }
+    .alert-btn.danger {
+      background: #ff4d4d;
+      border-color: #ff4d4d;
+    }
+    .alert-btn.danger:hover {
+      background: #ff3333;
+    }
+    .alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .alert-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
   </style>
 </head>
 <body>
@@ -266,31 +354,106 @@ $result = $stmt->get_result();
     </div>
   </div>
 
+  <!-- Custom Alert Box -->
+  <div class="alert-overlay" id="alertOverlay"></div>
+  <div class="custom-alert" id="customAlert">
+    <div class="alert-content">
+      <div class="alert-icon" id="alertIcon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="alert-title" id="alertTitle">Success!</div>
+      <div class="alert-message" id="alertMessage">Action completed!</div>
+      <div class="alert-buttons" id="alertButtons">
+        <button class="alert-btn" onclick="closeAlert()">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../frontend/assets/js/user.js"></script>
   <script>
+    let pendingSongId = null;
+    let pendingSongTitle = null;
+
+    function showAlert(type, title, message, buttons = null) {
+      const alert = document.getElementById('customAlert');
+      const overlay = document.getElementById('alertOverlay');
+      const icon = document.getElementById('alertIcon');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+      const alertButtons = document.getElementById('alertButtons');
+
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+
+      if (type === 'success') {
+        icon.className = 'alert-icon success';
+        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+      } else if (type === 'warning') {
+        icon.className = 'alert-icon warning';
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+      } else {
+        icon.className = 'alert-icon error';
+        icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+      }
+
+      if (buttons) {
+        alertButtons.innerHTML = buttons;
+      } else {
+        alertButtons.innerHTML = '<button class="alert-btn" onclick="closeAlert()">OK</button>';
+      }
+
+      overlay.classList.add('show');
+      alert.classList.add('show');
+    }
+
+    function closeAlert() {
+      const alert = document.getElementById('customAlert');
+      const overlay = document.getElementById('alertOverlay');
+      
+      overlay.classList.remove('show');
+      alert.classList.remove('show');
+      pendingSongId = null;
+      pendingSongTitle = null;
+    }
+
     function viewSong(songId) {
       window.location.href = `view_song.php?id=${songId}`;
     }
 
     function deleteSong(songId, songTitle) {
-      if (confirm(`Are you sure you want to delete "${songTitle}"? This action cannot be undone.`)) {
-        fetch('delete_song.php', {
+      pendingSongId = songId;
+      pendingSongTitle = songTitle;
+      showAlert(
+        'warning',
+        'Confirm Delete',
+        `Are you sure you want to delete "${songTitle}"? This action cannot be undone.`,
+        `
+          <button class="alert-btn" onclick="closeAlert()">Cancel</button>
+          <button class="alert-btn danger" onclick="confirmDelete()">Delete</button>
+        `
+      );
+    }
+
+    async function confirmDelete() {
+      if (!pendingSongId) return;
+
+      try {
+        const response = await fetch('delete_song.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `song_id=${songId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('Song deleted successfully!');
-            location.reload();
-          } else {
-            alert('Error: ' + data.message);
-          }
-        })
-        .catch(error => {
-          alert('Error deleting song: ' + error);
+          body: `song_id=${pendingSongId}`
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Success!', 'Song deleted successfully!');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showAlert('error', 'Error', data.message || 'Failed to delete song');
+        }
+      } catch (error) {
+        showAlert('error', 'Error', 'Network error. Please try again.');
       }
     }
   </script>

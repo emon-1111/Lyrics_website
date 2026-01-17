@@ -6,13 +6,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-// Get statistics
-$totalUsers = $conn->query("SELECT COUNT(*) as count FROM users WHERE role='user'")->fetch_assoc()['count'];
-$totalSongs = $conn->query("SELECT COUNT(*) as count FROM songs")->fetch_assoc()['count'];
-
-// Fetch all songs with user information (admin sees everything)
+// Fetch all songs with user information
 $stmt = $conn->prepare("
-    SELECT s.id, s.title, s.subtitle, s.is_public, s.created_at, u.name as creator_name, u.email as creator_email
+    SELECT s.id, s.title, s.subtitle, s.created_at, u.name as creator_name, u.email as creator_email
     FROM songs s
     LEFT JOIN users u ON s.user_id = u.id
     ORDER BY s.created_at DESC
@@ -25,43 +21,13 @@ $result = $stmt->get_result();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - LyricScroll</title>
+  <title>All Songs - Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
   <link rel="stylesheet" href="../frontend/assets/css/user.css">
   <style>
-    .stats-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-    .stat-card {
-      background: var(--card);
-      padding: 24px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      text-align: center;
-    }
-    .stat-number {
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .stat-label {
-      font-size: 14px;
-      color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .songs-section {
+    .songs-container {
       max-width: 1200px;
       margin: 0 auto;
-    }
-    .section-title {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: var(--text);
     }
     .song-card {
       background: var(--card);
@@ -191,39 +157,16 @@ $result = $stmt->get_result();
 
   <!-- Page Content -->
   <div class="page-content">
-    <h1 style="font-size: 32px; margin-bottom: 10px;">Admin Dashboard</h1>
-    <p style="color: var(--dim); margin-bottom: 30px;">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</p>
-    
-    <!-- Statistics -->
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-number"><?php echo $totalUsers; ?></div>
-        <div class="stat-label">Total Users</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-number"><?php echo $totalSongs; ?></div>
-        <div class="stat-label">Total Songs</div>
-      </div>
-    </div>
-
-    <!-- Songs List -->
-    <div class="songs-section">
-      <h2 class="section-title">All Songs</h2>
+    <div class="songs-container">
+      <h1 style="font-size: 32px; margin-bottom: 10px;">All Songs</h1>
+      <p style="color: var(--dim); margin-bottom: 30px;">Manage all songs in the system</p>
       
       <?php if ($result->num_rows > 0): ?>
         <?php while ($song = $result->fetch_assoc()): ?>
           <div class="song-card">
             <div class="song-header">
               <div class="song-info">
-                <h3>
-                  <?php echo htmlspecialchars($song['title']); ?>
-                  <?php if ($song['is_public'] == 1): ?>
-                    <span style="background: #4ade80; color: #000; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">PUBLIC</span>
-                  <?php else: ?>
-                    <span style="background: #888; color: #000; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">PRIVATE</span>
-                  <?php endif; ?>
-                </h3>
+                <h3><?php echo htmlspecialchars($song['title']); ?></h3>
                 <?php if ($song['subtitle']): ?>
                   <p><?php echo htmlspecialchars($song['subtitle']); ?></p>
                 <?php endif; ?>
@@ -232,7 +175,7 @@ $result = $stmt->get_result();
                 <button class="action-btn" onclick="viewSong(<?php echo $song['id']; ?>)">
                   <i class="fa-solid fa-eye"></i> View
                 </button>
-                <button class="action-btn delete" onclick="deleteSong(<?php echo $song['id']; ?>, '<?php echo htmlspecialchars(addslashes($song['title'])); ?>')">
+                <button class="action-btn delete" onclick="deleteSong(<?php echo $song['id']; ?>, '<?php echo htmlspecialchars($song['title']); ?>')">
                   <i class="fa-solid fa-trash"></i> Delete
                 </button>
               </div>

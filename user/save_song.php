@@ -21,8 +21,8 @@ if (empty($title)) {
     exit;
 }
 
-// Insert into database
-$stmt = $conn->prepare("INSERT INTO songs (user_id, title, subtitle, parts) VALUES (?, ?, ?, ?)");
+// Insert into database - User songs are PRIVATE (is_public = 0)
+$stmt = $conn->prepare("INSERT INTO songs (user_id, title, subtitle, is_public, parts) VALUES (?, ?, ?, 0, ?)");
 $stmt->bind_param("isss", $user_id, $title, $subtitle, $parts);
 
 if ($stmt->execute()) {

@@ -62,9 +62,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 
 <section class="page-content dashboard">
   <?php
-  // Fetch user's songs
+  // Fetch user's private songs AND all public songs
   $user_id = $_SESSION['user_id'];
-  $stmt = $conn->prepare("SELECT id, title, subtitle FROM songs WHERE user_id = ? ORDER BY created_at DESC");
+  $stmt = $conn->prepare("
+    SELECT s.id, s.title, s.subtitle, s.is_public, s.user_id, u.name as creator_name
+    FROM songs s
+    LEFT JOIN users u ON s.user_id = u.id
+    WHERE s.user_id = ? OR s.is_public = 1
+    ORDER BY s.created_at DESC
+  ");
   $stmt->bind_param("i", $user_id);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -77,12 +83,24 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
       <?php while ($song = $result->fetch_assoc()): ?>
         <div class="song-item">
           <div class="song-info">
-            <h3 class="song-title"><?php echo htmlspecialchars($song['title']); ?></h3>
-            <p class="song-subtitle"><?php echo htmlspecialchars($song['subtitle']); ?> (<?php echo $song['id']; ?>)</p>
+            <h3 class="song-title">
+              <?php echo htmlspecialchars($song['title']); ?>
+              <?php if ($song['is_public'] == 1): ?>
+                <span class="badge public-badge">PUBLIC</span>
+              <?php endif; ?>
+            </h3>
+            <p class="song-subtitle">
+              <?php echo htmlspecialchars($song['subtitle']); ?>
+              <?php if ($song['user_id'] != $user_id): ?>
+                <span style="color: #4ade80;"> • by <?php echo htmlspecialchars($song['creator_name']); ?></span>
+              <?php endif; ?>
+            </p>
           </div>
           <div class="song-actions">
             <button class="action-btn" onclick="window.location.href='view_song.php?id=<?php echo $song['id']; ?>'">View</button>
-            <button class="action-btn delete-btn" onclick="deleteSong(<?php echo $song['id']; ?>)">Delete Song</button>
+            <?php if ($song['user_id'] == $user_id): ?>
+              <button class="action-btn delete-btn" onclick="deleteSong(<?php echo $song['id']; ?>)">Delete</button>
+            <?php endif; ?>
           </div>
         </div>
       <?php endwhile; ?>
@@ -134,6 +152,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   font-size: 18px;
   margin: 0 0 5px 0;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.public-badge {
+  background: #4ade80;
+  color: #000;
 }
 
 .song-subtitle {

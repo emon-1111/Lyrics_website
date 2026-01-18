@@ -6,158 +6,179 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     exit;
 }
 
+$playlist_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $user_id = $_SESSION['user_id'];
 
-// Fetch all playlists for this user
-$stmt = $conn->prepare("
-    SELECT p.*, COUNT(ps.id) as song_count
-    FROM playlists p
-    LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id
-    WHERE p.user_id = ?
-    GROUP BY p.id
-    ORDER BY p.is_default DESC, p.created_at DESC
-");
-$stmt->bind_param("i", $user_id);
+// Fetch playlist details
+$stmt = $conn->prepare("SELECT * FROM playlists WHERE id = ? AND user_id = ?");
+$stmt->bind_param("ii", $playlist_id, $user_id);
 $stmt->execute();
-$result = $stmt->get_result();
+$playlist_result = $stmt->get_result();
+
+if ($playlist_result->num_rows === 0) {
+    echo "<script>alert('Playlist not found'); window.location.href='setlist.php';</script>";
+    exit;
+}
+
+$playlist = $playlist_result->fetch_assoc();
+
+// Fetch songs in this playlist
+$stmt = $conn->prepare("
+    SELECT s.*, ps.added_at, u.name as creator_name
+    FROM playlist_songs ps
+    JOIN songs s ON ps.song_id = s.id
+    LEFT JOIN users u ON s.user_id = u.id
+    WHERE ps.playlist_id = ?
+    ORDER BY ps.added_at DESC
+");
+$stmt->bind_param("i", $playlist_id);
+$stmt->execute();
+$songs_result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Playlists - LyricScroll</title>
+<title><?php echo htmlspecialchars($playlist['name']); ?> - LyricScroll</title>
 <link rel="stylesheet" href="../frontend/assets/css/user.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-.playlists-container {
+.playlist-header {
   max-width: 1200px;
   margin: 20px auto;
-  padding: 20px;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, var(--card) 0%, rgba(74, 222, 128, 0.1) 100%);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
 
-.page-header {
+.playlist-icon-large {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.playlist-details h1 {
+  font-size: 42px;
+  margin: 0 0 10px 0;
+  color: var(--text);
+}
+
+.playlist-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--dim);
+}
+
+.back-to-playlists {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--bar);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  transition: 0.2s;
+  margin: 20px auto;
+  max-width: 1200px;
+  display: block;
+  width: fit-content;
+}
+
+.back-to-playlists:hover {
+  background: var(--line);
+}
+
+.songs-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.song-item {
+  background: var(--card);
+  padding: 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  transition: 0.2s;
 }
 
-.page-title {
-  font-size: 32px;
+.song-item:hover {
+  border-color: var(--dim);
+  transform: translateX(4px);
+}
+
+.song-info {
+  flex: 1;
+}
+
+.song-title {
+  font-size: 18px;
+  margin: 0 0 5px 0;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.public-badge {
+  background: #4ade80;
+  color: #000;
+}
+
+.song-subtitle {
+  font-size: 14px;
+  color: var(--dim);
   margin: 0;
 }
 
-.create-playlist-btn {
-  background: #4ade80;
-  color: #000;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.2s;
+.song-actions {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.create-playlist-btn:hover {
-  background: #22c55e;
-  transform: translateY(-2px);
-}
-
-.playlists-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.playlist-card {
-  background: var(--card);
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-
-.playlist-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  border-color: var(--dim);
-}
-
-.playlist-card.default {
-  border-color: #4ade80;
-  background: linear-gradient(135deg, var(--card) 0%, rgba(74, 222, 128, 0.1) 100%);
-}
-
-.playlist-icon {
-  width: 60px;
-  height: 60px;
   background: var(--bar);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 16px;
-}
-
-.playlist-card.default .playlist-icon {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #000;
-}
-
-.playlist-name {
-  font-size: 20px;
-  font-weight: 600;
   color: var(--text);
-  margin-bottom: 8px;
-}
-
-.playlist-info {
-  font-size: 14px;
-  color: var(--dim);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.playlist-actions {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  opacity: 0;
-  transition: 0.2s;
-}
-
-.playlist-card:hover .playlist-actions {
-  opacity: 1;
-}
-
-.delete-playlist-btn {
-  background: #ff4d4d;
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 14px;
   transition: 0.2s;
 }
 
-.delete-playlist-btn:hover {
-  background: #ff3333;
-  transform: scale(1.1);
+.action-btn:hover {
+  background: var(--line);
+}
+
+.remove-btn {
+  color: #ff4d4d;
 }
 
 .empty-state {
@@ -172,7 +193,7 @@ $result = $stmt->get_result();
   opacity: 0.3;
 }
 
-/* Custom Alert Box */
+/* Alert styles */
 .custom-alert {
   position: fixed;
   top: 50%;
@@ -214,20 +235,6 @@ $result = $stmt->get_result();
   color: var(--dim);
   margin-bottom: 25px;
 }
-.alert-input {
-  width: 100%;
-  padding: 12px;
-  background: var(--bar);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-.alert-input:focus {
-  outline: none;
-  border-color: #4ade80;
-}
 .alert-buttons {
   display: flex;
   gap: 10px;
@@ -245,12 +252,6 @@ $result = $stmt->get_result();
   transition: 0.2s;
 }
 .alert-btn:hover { background: var(--line); }
-.alert-btn.primary {
-  background: #4ade80;
-  border-color: #4ade80;
-  color: #000;
-}
-.alert-btn.primary:hover { background: #22c55e; }
 .alert-btn.danger {
   background: #ff4d4d;
   border-color: #ff4d4d;
@@ -314,48 +315,65 @@ $result = $stmt->get_result();
 <div class="overlay" id="overlay"></div>
 
 <section class="page-content">
-  <div class="playlists-container">
-    <div class="page-header">
-      <h1 class="page-title">My Playlists</h1>
-      <button class="create-playlist-btn" onclick="showCreatePlaylist()">
-        <i class="fa-solid fa-plus"></i> Create Playlist
-      </button>
-    </div>
+  <a href="setlist.php" class="back-to-playlists">
+    <i class="fa-solid fa-arrow-left"></i> Back to Playlists
+  </a>
 
-    <?php if ($result->num_rows > 0): ?>
-      <div class="playlists-grid">
-        <?php while ($playlist = $result->fetch_assoc()): ?>
-          <div class="playlist-card <?php echo $playlist['is_default'] ? 'default' : ''; ?>" 
-               onclick="window.location.href='view_playlist.php?id=<?php echo $playlist['id']; ?>'">
-            <div class="playlist-icon">
-              <i class="fa-solid fa-<?php echo $playlist['is_default'] ? 'heart' : 'list-music'; ?>"></i>
-            </div>
-            <div class="playlist-name"><?php echo htmlspecialchars($playlist['name']); ?></div>
-            <div class="playlist-info">
-              <i class="fa-solid fa-music"></i>
-              <span><?php echo $playlist['song_count']; ?> songs</span>
-            </div>
-            <?php if (!$playlist['is_default']): ?>
-              <div class="playlist-actions" onclick="event.stopPropagation();">
-                <button class="delete-playlist-btn" onclick="deletePlaylist(<?php echo $playlist['id']; ?>, '<?php echo htmlspecialchars(addslashes($playlist['name'])); ?>')">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            <?php endif; ?>
-          </div>
-        <?php endwhile; ?>
+  <div class="playlist-header">
+    <div class="playlist-icon-large">
+      <i class="fa-solid fa-<?php echo $playlist['is_default'] ? 'heart' : 'list-music'; ?>"></i>
+    </div>
+    <div class="playlist-details">
+      <h1><?php echo htmlspecialchars($playlist['name']); ?></h1>
+      <div class="playlist-meta">
+        <span><i class="fa-solid fa-music"></i> <?php echo $songs_result->num_rows; ?> songs</span>
+        <span><i class="fa-solid fa-calendar"></i> Created <?php echo date('M d, Y', strtotime($playlist['created_at'])); ?></span>
       </div>
+    </div>
+  </div>
+
+  <div class="songs-container">
+    <?php if ($songs_result->num_rows > 0): ?>
+      <?php while ($song = $songs_result->fetch_assoc()): ?>
+        <div class="song-item">
+          <div class="song-info">
+            <h3 class="song-title">
+              <?php echo htmlspecialchars($song['title']); ?>
+              <?php if ($song['is_public'] == 1): ?>
+                <span class="badge public-badge">PUBLIC</span>
+              <?php endif; ?>
+            </h3>
+            <p class="song-subtitle">
+              <?php echo htmlspecialchars($song['subtitle']); ?>
+              <?php if ($song['user_id'] != $user_id): ?>
+                <span style="color: #4ade80;"> • by <?php echo htmlspecialchars($song['creator_name']); ?></span>
+              <?php endif; ?>
+            </p>
+          </div>
+          <div class="song-actions">
+            <button class="action-btn" onclick="window.location.href='view_song.php?id=<?php echo $song['id']; ?>'">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
+            <button class="action-btn remove-btn" onclick="removeSong(<?php echo $song['id']; ?>, '<?php echo htmlspecialchars(addslashes($song['title'])); ?>')">
+              <i class="fa-solid fa-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      <?php endwhile; ?>
     <?php else: ?>
       <div class="empty-state">
-        <i class="fa-solid fa-list-music"></i>
-        <h2>No Playlists Yet</h2>
-        <p>Create your first playlist to organize your songs</p>
+        <i class="fa-solid fa-music"></i>
+        <h2>No Songs Yet</h2>
+        <p>Add songs to this playlist from your songs page</p>
+        <button class="action-btn" onclick="window.location.href='song.php'" style="margin-top: 20px; padding: 12px 24px;">
+          <i class="fa-solid fa-plus"></i> Go to Songs
+        </button>
       </div>
     <?php endif; ?>
   </div>
 </section>
 
-<!-- Custom Alert Box -->
+<!-- Alert Box -->
 <div class="alert-overlay" id="alertOverlay"></div>
 <div class="custom-alert" id="customAlert">
   <div class="alert-content">
@@ -364,7 +382,6 @@ $result = $stmt->get_result();
     </div>
     <div class="alert-title" id="alertTitle">Success!</div>
     <div class="alert-message" id="alertMessage">Action completed!</div>
-    <div id="alertInputContainer"></div>
     <div class="alert-buttons" id="alertButtons">
       <button class="alert-btn" onclick="closeAlert()">OK</button>
     </div>
@@ -373,16 +390,15 @@ $result = $stmt->get_result();
 
 <script src="../frontend/assets/js/user.js"></script>
 <script>
-let pendingPlaylistId = null;
+let pendingSongId = null;
 
-function showAlert(type, title, message, buttons = null, hasInput = false) {
+function showAlert(type, title, message, buttons = null) {
   const alert = document.getElementById('customAlert');
   const overlay = document.getElementById('alertOverlay');
   const icon = document.getElementById('alertIcon');
   const alertTitle = document.getElementById('alertTitle');
   const alertMessage = document.getElementById('alertMessage');
   const alertButtons = document.getElementById('alertButtons');
-  const inputContainer = document.getElementById('alertInputContainer');
 
   alertTitle.textContent = title;
   alertMessage.textContent = message;
@@ -398,12 +414,6 @@ function showAlert(type, title, message, buttons = null, hasInput = false) {
     icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
   }
 
-  if (hasInput) {
-    inputContainer.innerHTML = '<input type="text" id="playlistNameInput" class="alert-input" placeholder="Enter playlist name" maxlength="50">';
-  } else {
-    inputContainer.innerHTML = '';
-  }
-
   if (buttons) {
     alertButtons.innerHTML = buttons;
   } else {
@@ -412,10 +422,6 @@ function showAlert(type, title, message, buttons = null, hasInput = false) {
 
   overlay.classList.add('show');
   alert.classList.add('show');
-
-  if (hasInput) {
-    setTimeout(() => document.getElementById('playlistNameInput')?.focus(), 100);
-  }
 }
 
 function closeAlert() {
@@ -424,81 +430,42 @@ function closeAlert() {
   
   overlay.classList.remove('show');
   alert.classList.remove('show');
-  pendingPlaylistId = null;
+  pendingSongId = null;
 }
 
-function showCreatePlaylist() {
-  showAlert(
-    'success',
-    'Create New Playlist',
-    'Enter a name for your playlist',
-    `
-      <button class="alert-btn" onclick="closeAlert()">Cancel</button>
-      <button class="alert-btn primary" onclick="createPlaylist()">Create</button>
-    `,
-    true
-  );
-}
-
-async function createPlaylist() {
-  const nameInput = document.getElementById('playlistNameInput');
-  const name = nameInput?.value.trim();
-
-  if (!name) {
-    showAlert('error', 'Error', 'Please enter a playlist name');
-    return;
-  }
-
-  try {
-    const response = await fetch('create_playlist.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      showAlert('success', 'Success!', 'Playlist created successfully!');
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      showAlert('error', 'Error', result.message || 'Failed to create playlist');
-    }
-  } catch (error) {
-    showAlert('error', 'Error', 'Network error. Please try again.');
-  }
-}
-
-function deletePlaylist(playlistId, playlistName) {
-  pendingPlaylistId = playlistId;
+function removeSong(songId, songTitle) {
+  pendingSongId = songId;
   showAlert(
     'warning',
-    'Delete Playlist',
-    `Are you sure you want to delete "${playlistName}"? All songs will be removed from this playlist.`,
+    'Remove from Playlist',
+    `Remove "${songTitle}" from this playlist?`,
     `
       <button class="alert-btn" onclick="closeAlert()">Cancel</button>
-      <button class="alert-btn danger" onclick="confirmDeletePlaylist()">Delete</button>
+      <button class="alert-btn danger" onclick="confirmRemove()">Remove</button>
     `
   );
 }
 
-async function confirmDeletePlaylist() {
-  if (!pendingPlaylistId) return;
+async function confirmRemove() {
+  if (!pendingSongId) return;
 
   try {
-    const response = await fetch('delete_playlist.php', {
+    const response = await fetch('remove_from_playlist.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playlist_id: pendingPlaylistId })
+      body: JSON.stringify({ 
+        playlist_id: <?php echo $playlist_id; ?>,
+        song_id: pendingSongId 
+      })
     });
 
     const result = await response.json();
 
     if (result.success) {
-      showAlert('success', 'Success!', 'Playlist deleted successfully!');
+      showAlert('success', 'Success!', 'Song removed from playlist');
       setTimeout(() => location.reload(), 1500);
     } else {
-      showAlert('error', 'Error', result.message || 'Failed to delete playlist');
+      showAlert('error', 'Error', result.message || 'Failed to remove song');
     }
   } catch (error) {
     showAlert('error', 'Error', 'Network error. Please try again.');

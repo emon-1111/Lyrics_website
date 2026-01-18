@@ -5,6 +5,30 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     header("Location: ../index.php");
     exit;
 }
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's private songs AND all public songs
+$stmt = $conn->prepare("
+    SELECT s.id, s.title, s.subtitle, s.is_public, s.user_id, u.name as creator_name
+    FROM songs s
+    LEFT JOIN users u ON s.user_id = u.id
+    WHERE s.user_id = ? OR s.is_public = 1
+    ORDER BY s.created_at DESC
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$songs_result = $stmt->get_result();
+
+// Fetch user's playlists for the dropdown
+$playlists_stmt = $conn->prepare("SELECT id, name FROM playlists WHERE user_id = ? ORDER BY is_default DESC, name ASC");
+$playlists_stmt->bind_param("i", $user_id);
+$playlists_stmt->execute();
+$playlists_result = $playlists_stmt->get_result();
+$playlists = [];
+while ($pl = $playlists_result->fetch_assoc()) {
+    $playlists[] = $pl;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,27 +45,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   <div class="nav-item logo-container">
     <img src="../frontend/assets/images/transparent_logo.png" class="logo" alt="Logo">
   </div>
-
   <div class="nav-item" data-page="dashboard.php">
     <i class="fa-solid fa-home icon"></i><span>Dashboard</span>
   </div>
-
   <div class="nav-item active" data-page="song.php">
     <i class="fa-solid fa-music icon"></i><span>Songs</span>
   </div>
-
   <div class="nav-item" data-page="setlist.php">
-    <i class="fa-solid fa-list icon"></i><span>Setlists</span>
+    <i class="fa-solid fa-list icon"></i><span>Playlists</span>
   </div>
-
   <div class="nav-item" data-page="create.php">
     <i class="fa-solid fa-plus icon"></i><span>Create</span>
   </div>
-
   <div class="nav-item" data-page="search.php">
     <i class="fa-solid fa-magnifying-glass icon"></i><span>Search</span>
   </div>
-
   <div class="nav-item" id="menuBtn">
     <i class="fa-solid fa-bars icon"></i>
   </div>
@@ -50,7 +68,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 <ul class="dropdown-menu" id="dropdownMenu">
   <li data-link="dashboard.php"><i class="fa-solid fa-home"></i> Dashboard</li>
   <li data-link="song.php"><i class="fa-solid fa-music"></i> Songs</li>
-  <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Setlists</li>
+  <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Playlists</li>
   <li data-link="search.php"><i class="fa-solid fa-magnifying-glass"></i> Search</li>
   <hr>
   <li data-link="create.php"><i class="fa-solid fa-plus"></i> Create Song</li>
@@ -61,26 +79,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 <div class="overlay" id="overlay"></div>
 
 <section class="page-content dashboard">
-  <?php
-  // Fetch user's private songs AND all public songs
-  $user_id = $_SESSION['user_id'];
-  $stmt = $conn->prepare("
-    SELECT s.id, s.title, s.subtitle, s.is_public, s.user_id, u.name as creator_name
-    FROM songs s
-    LEFT JOIN users u ON s.user_id = u.id
-    WHERE s.user_id = ? OR s.is_public = 1
-    ORDER BY s.created_at DESC
-  ");
-  $stmt->bind_param("i", $user_id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  ?>
-  
   <div class="songs-container">
-    <h2 class="page-title"><?php echo $result->num_rows; ?> Songs</h2>
+    <h2 class="page-title"><?php echo $songs_result->num_rows; ?> Songs</h2>
     
-    <?php if ($result->num_rows > 0): ?>
-      <?php while ($song = $result->fetch_assoc()): ?>
+    <?php if ($songs_result->num_rows > 0): ?>
+      <?php while ($song = $songs_result->fetch_assoc()): ?>
         <div class="song-item">
           <div class="song-info">
             <h3 class="song-title">
@@ -97,9 +100,16 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
             </p>
           </div>
           <div class="song-actions">
-            <button class="action-btn" onclick="window.location.href='view_song.php?id=<?php echo $song['id']; ?>'">View</button>
+            <button class="action-btn" onclick="window.location.href='view_song.php?id=<?php echo $song['id']; ?>'">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
+            <button class="action-btn playlist-btn" onclick="showAddToPlaylist(<?php echo $song['id']; ?>, '<?php echo htmlspecialchars(addslashes($song['title'])); ?>')">
+              <i class="fa-solid fa-plus"></i> Add to Playlist
+            </button>
             <?php if ($song['user_id'] == $user_id): ?>
-              <button class="action-btn delete-btn" onclick="deleteSong(<?php echo $song['id']; ?>)">Delete</button>
+              <button class="action-btn delete-btn" onclick="deleteSong(<?php echo $song['id']; ?>)">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
             <?php endif; ?>
           </div>
         </div>
@@ -111,8 +121,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
       </div>
     <?php endif; ?>
   </div>
-  
-  <?php $stmt->close(); ?>
 </section>
 
 <!-- Custom Alert Box -->
@@ -124,6 +132,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
     </div>
     <div class="alert-title" id="alertTitle">Success!</div>
     <div class="alert-message" id="alertMessage">Action completed!</div>
+    <div id="playlistSelectContainer"></div>
     <div class="alert-buttons" id="alertButtons">
       <button class="alert-btn" onclick="closeAlert()">OK</button>
     </div>
@@ -193,6 +202,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 .song-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .action-btn {
@@ -204,10 +214,23 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   cursor: pointer;
   font-size: 14px;
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .action-btn:hover {
   background: var(--line);
+}
+
+.playlist-btn {
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #000;
+}
+
+.playlist-btn:hover {
+  background: #22c55e;
 }
 
 .delete-btn {
@@ -277,6 +300,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
   color: var(--dim);
   margin-bottom: 25px;
 }
+.playlist-select {
+  width: 100%;
+  padding: 12px;
+  background: var(--bar);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.playlist-select:focus {
+  outline: none;
+  border-color: #4ade80;
+}
 .alert-buttons {
   display: flex;
   gap: 10px;
@@ -295,6 +333,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 }
 .alert-btn:hover {
   background: var(--line);
+}
+.alert-btn.primary {
+  background: #4ade80;
+  border-color: #4ade80;
+  color: #000;
+}
+.alert-btn.primary:hover {
+  background: #22c55e;
 }
 .alert-btn.danger {
   background: #ff4d4d;
@@ -323,20 +369,22 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 
 <script>
 let pendingSongId = null;
+let pendingSongTitle = null;
 
-function showAlert(type, title, message, buttons = null) {
+const playlists = <?php echo json_encode($playlists); ?>;
+
+function showAlert(type, title, message, buttons = null, hasPlaylistSelect = false) {
   const alert = document.getElementById('customAlert');
   const overlay = document.getElementById('alertOverlay');
   const icon = document.getElementById('alertIcon');
   const alertTitle = document.getElementById('alertTitle');
   const alertMessage = document.getElementById('alertMessage');
   const alertButtons = document.getElementById('alertButtons');
+  const selectContainer = document.getElementById('playlistSelectContainer');
 
-  // Set content
   alertTitle.textContent = title;
   alertMessage.textContent = message;
 
-  // Set icon
   if (type === 'success') {
     icon.className = 'alert-icon success';
     icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
@@ -348,14 +396,23 @@ function showAlert(type, title, message, buttons = null) {
     icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
   }
 
-  // Set buttons
+  if (hasPlaylistSelect && playlists.length > 0) {
+    let selectHTML = '<select id="playlistSelect" class="playlist-select">';
+    playlists.forEach(pl => {
+      selectHTML += `<option value="${pl.id}">${pl.name}</option>`;
+    });
+    selectHTML += '</select>';
+    selectContainer.innerHTML = selectHTML;
+  } else {
+    selectContainer.innerHTML = '';
+  }
+
   if (buttons) {
     alertButtons.innerHTML = buttons;
   } else {
     alertButtons.innerHTML = '<button class="alert-btn" onclick="closeAlert()">OK</button>';
   }
 
-  // Show alert
   overlay.classList.add('show');
   alert.classList.add('show');
 }
@@ -367,6 +424,56 @@ function closeAlert() {
   overlay.classList.remove('show');
   alert.classList.remove('show');
   pendingSongId = null;
+  pendingSongTitle = null;
+}
+
+function showAddToPlaylist(songId, songTitle) {
+  if (playlists.length === 0) {
+    showAlert('error', 'No Playlists', 'Please create a playlist first');
+    return;
+  }
+
+  pendingSongId = songId;
+  pendingSongTitle = songTitle;
+  
+  showAlert(
+    'success',
+    'Add to Playlist',
+    `Add "${songTitle}" to:`,
+    `
+      <button class="alert-btn" onclick="closeAlert()">Cancel</button>
+      <button class="alert-btn primary" onclick="addToPlaylist()">Add</button>
+    `,
+    true
+  );
+}
+
+async function addToPlaylist() {
+  const select = document.getElementById('playlistSelect');
+  const playlistId = select?.value;
+
+  if (!playlistId || !pendingSongId) return;
+
+  try {
+    const response = await fetch('add_to_playlist.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        playlist_id: parseInt(playlistId),
+        song_id: pendingSongId
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showAlert('success', 'Success!', `"${pendingSongTitle}" added to playlist!`);
+    } else {
+      showAlert('error', 'Error', result.message || 'Failed to add song to playlist');
+    }
+  } catch (error) {
+    showAlert('error', 'Error', 'Network error. Please try again.');
+  }
 }
 
 async function deleteSong(id) {

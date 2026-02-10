@@ -78,14 +78,7 @@
               >
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <span class="validation-icon" aria-hidden="true"></span>
             </div>
-            <div
-              id="login-password-error"
-              class="field-error"
-              aria-live="polite"
-            ></div>
-            <div class="fgt-pw">Forgot password?<u>click here</u></div>
           </label>
 
           <button type="submit" class="btn primary">Log in</button>

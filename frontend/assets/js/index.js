@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginEmail = qs("#login-email");
   const loginPassword = qs("#login-password");
   const loginEmailError = qs("#login-email-error");
-  const loginPasswordError = qs("#login-password-error");
 
   // Signup fields
   const signupName = qs("#signup-name");
@@ -99,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // -------------------
-  // Real-time validation
+  // Real-time validation for SIGNUP only
   // -------------------
   signupName?.addEventListener("input", () => {
     if (signupName.value.trim().length < 2) {
@@ -131,6 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // -------------------
+  // Real-time validation for LOGIN (email only, no password validation)
+  // -------------------
   loginEmail?.addEventListener("input", () => {
     if (!isValidEmail(loginEmail.value.trim())) {
       loginEmailError.textContent = "Enter a valid email.";
@@ -141,31 +143,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  loginPassword?.addEventListener("input", () => {
-    if (loginPassword.value.length < 6) {
-      loginPasswordError.textContent = "Weak password (min 6 chars).";
-      setValidityVisual(loginPassword, false);
-    } else {
-      loginPasswordError.textContent = "";
-      setValidityVisual(loginPassword, true);
-    }
-  });
-
   // -------------------
   // Submit validation
   // -------------------
   signupForm?.addEventListener("submit", (e) => {
     let ok = true;
-    if (!signupName || signupName.value.trim().length < 2) { signupNameError.textContent = "Enter your full name."; setValidityVisual(signupName, false); ok = false; }
-    if (!signupEmail || !isValidGmail(signupEmail.value.trim())) { signupEmailError.textContent = "(example@gmail.com)."; setValidityVisual(signupEmail, false); ok = false; }
-    if (!signupPassword || !isValidSignupPassword(signupPassword.value)) { signupPasswordError.textContent = "Weak password."; setValidityVisual(signupPassword, false); ok = false; }
+    if (!signupName || signupName.value.trim().length < 2) { 
+      signupNameError.textContent = "Enter your full name."; 
+      setValidityVisual(signupName, false); 
+      ok = false; 
+    }
+    if (!signupEmail || !isValidGmail(signupEmail.value.trim())) { 
+      signupEmailError.textContent = "(example@gmail.com)."; 
+      setValidityVisual(signupEmail, false); 
+      ok = false; 
+    }
+    if (!signupPassword || !isValidSignupPassword(signupPassword.value)) { 
+      signupPasswordError.textContent = "Weak password."; 
+      setValidityVisual(signupPassword, false); 
+      ok = false; 
+    }
     if (!ok) e.preventDefault();
   });
 
   loginForm?.addEventListener("submit", (e) => {
     let ok = true;
-    if (!loginEmail || !isValidEmail(loginEmail.value.trim())) { loginEmailError.textContent = "Enter a valid email."; setValidityVisual(loginEmail, false); ok = false; }
-    if (!loginPassword || loginPassword.value.length < 6) { loginPasswordError.textContent = "Weak password."; setValidityVisual(loginPassword, false); ok = false; }
+    if (!loginEmail || !isValidEmail(loginEmail.value.trim())) { 
+      loginEmailError.textContent = "Enter a valid email."; 
+      setValidityVisual(loginEmail, false); 
+      ok = false; 
+    }
+    if (!loginPassword || loginPassword.value.length === 0) { 
+      ok = false; 
+    }
     if (!ok) e.preventDefault();
   });
 

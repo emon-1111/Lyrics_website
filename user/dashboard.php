@@ -306,7 +306,7 @@ $playlists = $playlists_stmt->get_result();
   <div class="dashboard-container">
     <!-- Welcome Section -->
     <div class="welcome-section">
-      <h1>Welcome back, <?php echo htmlspecialchars($_SESSION['user_name']); ?>! 👋</h1>
+      <h1>Welcome back, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
       <p>Your music library is ready to explore</p>
     </div>
 

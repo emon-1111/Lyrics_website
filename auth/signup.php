@@ -18,14 +18,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Insert new user with default role 'user'
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
-    $stmt->bind_param("sss", $name, $email, $pw);
-    
-    if ($stmt->execute()) {
+    // Start transaction
+    $conn->begin_transaction();
+
+    try {
+        // Insert new user with default role 'user'
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
+        $stmt->bind_param("sss", $name, $email, $pw);
+        $stmt->execute();
+        
+        // Get the new user's ID
+        $new_user_id = $stmt->insert_id;
+        
+        // Create default "Favorites" playlist for the new user
+        $stmt = $conn->prepare("INSERT INTO playlists (user_id, name, is_default) VALUES (?, 'Favorites', 1)");
+        $stmt->bind_param("i", $new_user_id);
+        $stmt->execute();
+        
+        // Commit transaction
+        $conn->commit();
+        
         echo "<script>alert('Account created successfully! Please login.'); window.location.href='../index.php';</script>";
-    } else {
-        echo "<script>alert('Error creating account: " . $conn->error . "'); window.location.href='../index.php';</script>";
+    } catch (Exception $e) {
+        // Rollback on error
+        $conn->rollback();
+        echo "<script>alert('Error creating account: " . $e->getMessage() . "'); window.location.href='../index.php';</script>";
     }
     
     $stmt->close();

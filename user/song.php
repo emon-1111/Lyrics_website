@@ -375,7 +375,7 @@ while ($pl = $playlists_result->fetch_assoc()) {
     <i class="fa-solid fa-music icon"></i><span>Songs</span>
   </div>
   <div class="nav-item" data-page="setlist.php">
-    <i class="fa-solid fa-list icon"></i><span>Playlists</span>
+    <i class="fa-solid fa-list icon"></i><span>Setlists</span>
   </div>
   <div class="nav-item" data-page="create.php">
     <i class="fa-solid fa-plus icon"></i><span>Create</span>
@@ -391,7 +391,7 @@ while ($pl = $playlists_result->fetch_assoc()) {
 <ul class="dropdown-menu" id="dropdownMenu">
   <li data-link="dashboard.php"><i class="fa-solid fa-home"></i> Dashboard</li>
   <li data-link="song.php"><i class="fa-solid fa-music"></i> Songs</li>
-  <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Playlists</li>
+  <li data-link="setlist.php"><i class="fa-solid fa-list"></i> Setlists</li>
   <li data-link="search.php"><i class="fa-solid fa-magnifying-glass"></i> Search</li>
   <hr>
   <li data-link="create.php"><i class="fa-solid fa-plus"></i> Create Song</li>

@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="./frontend/assets/css/index.css" />
   </head>
   <body>
-    <!-- Custom Alert Box -->
-    <div id="custom-alert" class="custom-alert-overlay">
+    <!-- Custom Alert Box - HIDDEN BY DEFAULT -->
+    <div id="custom-alert" class="custom-alert-overlay" style="display: none;">
       <div class="custom-alert-box">
         <div class="custom-alert-icon">
           <i class="fa-solid fa-circle-info"></i>
@@ -179,7 +179,7 @@
             ></div>
           </label>
 
-          <!-- Genre Selection - SIMPLE & CLEAN -->
+          <!-- Genre Selection - 3 COLUMNS -->
           <label class="field">
             <span class="field-label">Favorite Genres (select at least one)</span>
             <div class="genre-container">

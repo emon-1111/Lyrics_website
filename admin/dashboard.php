@@ -248,7 +248,7 @@ $result = $stmt->get_result();
       <span>Songs</span>
     </div>
     
-    <div class="nav-item" data-page="create_song.php">
+    <div class="nav-item" data-page="create_song_choice.php">
       <i class="fa-solid fa-plus icon"></i>
       <span>Create Song</span>
     </div>
@@ -267,7 +267,7 @@ $result = $stmt->get_result();
       <i class="fa-solid fa-music"></i>
       <span>Songs</span>
     </li>
-    <li data-link="create_song.php">
+    <li data-link="create_song_choice.php">
       <i class="fa-solid fa-plus"></i>
       <span>Create Song</span>
     </li>

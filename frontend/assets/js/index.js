@@ -1,6 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   // -------------------
+  // Custom Alert Function
+  // -------------------
+  function showCustomAlert(message) {
+    const alertOverlay = document.getElementById('custom-alert');
+    const alertMessage = document.getElementById('custom-alert-message');
+    const alertOkBtn = document.getElementById('custom-alert-ok');
+    
+    alertMessage.textContent = message;
+    alertOverlay.classList.add('show');
+    
+    alertOkBtn.onclick = () => {
+      alertOverlay.classList.remove('show');
+    };
+    
+    // Close on overlay click
+    alertOverlay.onclick = (e) => {
+      if (e.target === alertOverlay) {
+        alertOverlay.classList.remove('show');
+      }
+    };
+  }
+
+  // Check for URL parameters to show alerts
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('error')) {
+    showCustomAlert(decodeURIComponent(urlParams.get('error')));
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+  if (urlParams.has('success')) {
+    showCustomAlert(decodeURIComponent(urlParams.get('success')));
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // -------------------
   // Helper
   // -------------------
   const qs = (sel) => document.querySelector(sel);
@@ -23,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupNameError = qs("#signup-name-error");
   const signupEmailError = qs("#signup-email-error");
   const signupPasswordError = qs("#signup-password-error");
+  const signupGenreError = qs("#signup-genre-error");
 
   // Toggle buttons
   const loginTogglePw = qs("#login-toggle-pw");
@@ -53,6 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!row) return;
     row.classList.toggle("valid", isValid);
     row.classList.toggle("invalid", !isValid);
+  }
+
+  function getSelectedGenres() {
+    const checkboxes = document.querySelectorAll('input[name="genres[]"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
   }
 
   function showSignupForm() {
@@ -131,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // -------------------
-  // Real-time validation for LOGIN (email only, no password validation)
+  // Real-time validation for LOGIN
   // -------------------
   loginEmail?.addEventListener("input", () => {
     if (!isValidEmail(loginEmail.value.trim())) {
@@ -163,6 +203,16 @@ document.addEventListener("DOMContentLoaded", () => {
       setValidityVisual(signupPassword, false); 
       ok = false; 
     }
+    
+    // Validate genre selection
+    const selectedGenres = getSelectedGenres();
+    if (selectedGenres.length === 0) {
+      signupGenreError.textContent = "Please select at least one music genre.";
+      ok = false;
+    } else {
+      signupGenreError.textContent = "";
+    }
+    
     if (!ok) e.preventDefault();
   });
 

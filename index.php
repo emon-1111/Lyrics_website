@@ -19,6 +19,17 @@
     <link rel="stylesheet" href="./frontend/assets/css/index.css" />
   </head>
   <body>
+    <!-- Custom Alert Box -->
+    <div id="custom-alert" class="custom-alert-overlay">
+      <div class="custom-alert-box">
+        <div class="custom-alert-icon">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <p id="custom-alert-message" class="custom-alert-message"></p>
+        <button id="custom-alert-ok" class="custom-alert-btn">OK</button>
+      </div>
+    </div>
+
     <main class="page">
       <section class="card-wrap">
         <header class="brand">
@@ -163,6 +174,50 @@
             </div>
             <div
               id="signup-password-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
+
+          <!-- Genre Selection -->
+          <label class="field">
+            <span class="field-label">Favorite Music Genres <span class="muted-small">(Select at least one)</span></span>
+            <div class="genre-container">
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Pop">
+                <span class="genre-label"><i class="fa-solid fa-music"></i> Pop</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Rock">
+                <span class="genre-label"><i class="fa-solid fa-guitar"></i> Rock</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Hip Hop">
+                <span class="genre-label"><i class="fa-solid fa-microphone"></i> Hip Hop</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Classical">
+                <span class="genre-label"><i class="fa-solid fa-violin"></i> Classical</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Jazz">
+                <span class="genre-label"><i class="fa-solid fa-saxophone"></i> Jazz</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Country">
+                <span class="genre-label"><i class="fa-solid fa-hat-cowboy"></i> Country</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="Electronic">
+                <span class="genre-label"><i class="fa-solid fa-headphones"></i> Electronic</span>
+              </label>
+              <label class="genre-chip">
+                <input type="checkbox" name="genres[]" value="R&B">
+                <span class="genre-label"><i class="fa-solid fa-record-vinyl"></i> R&B</span>
+              </label>
+            </div>
+            <div
+              id="signup-genre-error"
               class="field-error"
               aria-live="polite"
             ></div>

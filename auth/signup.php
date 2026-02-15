@@ -6,6 +6,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $pw = hash("sha256", $_POST['password']);
+    $genres = isset($_POST['genres']) ? $_POST['genres'] : [];
+
+    // Validate genre selection
+    if (empty($genres)) {
+        header("Location: ../index.php?error=" . urlencode("Please select at least one music genre."));
+        exit;
+    }
 
     // Check duplicate email
     $stmt = $conn->prepare("SELECT id FROM users WHERE email=?");
@@ -14,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $stmt->get_result();
     
     if ($result->num_rows > 0) {
-        echo "<script>alert('Email already exists'); window.location.href='../index.php';</script>";
+        header("Location: ../index.php?error=" . urlencode("Email already exists"));
         exit;
     }
 
@@ -22,9 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        // Insert new user with default role 'user'
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
-        $stmt->bind_param("sss", $name, $email, $pw);
+        // Convert genres array to JSON string for storage
+        $genresJson = json_encode($genres);
+        
+        // Insert new user with default role 'user' and genres
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, favorite_genres) VALUES (?, ?, ?, 'user', ?)");
+        $stmt->bind_param("ssss", $name, $email, $pw, $genresJson);
         $stmt->execute();
         
         // Get the new user's ID
@@ -38,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $conn->commit();
         
-        echo "<script>alert('Account created successfully! Please login.'); window.location.href='../index.php';</script>";
+        header("Location: ../index.php?success=" . urlencode("Account created successfully! Please login."));
     } catch (Exception $e) {
         // Rollback on error
         $conn->rollback();
-        echo "<script>alert('Error creating account: " . $e->getMessage() . "'); window.location.href='../index.php';</script>";
+        header("Location: ../index.php?error=" . urlencode("Error creating account: " . $e->getMessage()));
     }
     
     $stmt->close();

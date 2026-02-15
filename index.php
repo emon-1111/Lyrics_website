@@ -13,7 +13,7 @@
       referrerpolicy="no-referrer"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./frontend/assets/css/index.css" />
@@ -23,7 +23,7 @@
     <div id="custom-alert" class="custom-alert-overlay">
       <div class="custom-alert-box">
         <div class="custom-alert-icon">
-          <i class="fa-solid fa-circle-check"></i>
+          <i class="fa-solid fa-circle-info"></i>
         </div>
         <p id="custom-alert-message" class="custom-alert-message"></p>
         <button id="custom-alert-ok" class="custom-alert-btn">OK</button>
@@ -43,14 +43,13 @@
         <!-- LOGIN FORM -->
         <form id="login-form" class="card" method="POST" action="./auth/login.php">
           <h2 class="card-title">Welcome back</h2>
-          <p class="card-subtitle">Sign in to continue to LyricScroll</p>
 
           <label class="field">
             <span class="field-label">Email</span>
             <div class="input-row">
-              <span class="field-icon" aria-hidden="true">
-                <i class="fa-solid fa-envelope"></i>
-              </span>
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-envelope"></i
+              ></span>
               <input
                 id="login-email"
                 name="email"
@@ -72,8 +71,8 @@
           <label class="field">
             <span class="field-label">Password</span>
             <div class="input-row">
-              <span class="field-icon" aria-hidden="true">
-                <i class="fa-solid fa-key"></i>
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-key"></i>
               </span>
               <input
                 id="login-password"
@@ -95,23 +94,21 @@
           </label>
 
           <button type="submit" class="btn primary">Log in</button>
+          
 
-          <p class="switch-text">
-            Don't have an account? <span id="to-signup" class="switch-link">Sign up</span>
+          <p class="muted clickable" id="to-signup-wrapper">
+            Don't have an account? <span id="to-signup"><u>Sign up</u></span>
           </p>
         </form>
 
         <!-- SIGNUP FORM -->
         <form id="signup-form" class="card hidden" method="POST" action="./auth/signup.php">
           <h2 class="card-title">Create account</h2>
-          <p class="card-subtitle">Join LyricScroll today</p>
 
           <label class="field">
             <span class="field-label">Full name</span>
             <div class="input-row">
-              <span class="field-icon" aria-hidden="true">
-                <i class="fa-solid fa-user"></i>
-              </span>
+              <span class="field-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
               <input
                 id="signup-name"
                 name="name"
@@ -132,9 +129,9 @@
           <label class="field">
             <span class="field-label">Email</span>
             <div class="input-row">
-              <span class="field-icon" aria-hidden="true">
-                <i class="fa-solid fa-envelope"></i>
-              </span>
+              <span class="field-icon" aria-hidden="true"
+                ><i class="fa-solid fa-envelope"></i
+              ></span>
               <input
                 id="signup-email"
                 name="email"
@@ -156,9 +153,7 @@
           <label class="field">
             <span class="field-label">Password</span>
             <div class="input-row">
-              <span class="field-icon" aria-hidden="true">
-                <i class="fa-solid fa-key"></i>
-              </span>
+              <span class="field-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span>
               <input
                 id="signup-password"
                 name="password"
@@ -184,95 +179,46 @@
             ></div>
           </label>
 
-          <!-- Genre Selection -->
-          <div class="field">
-            <span class="field-label">
-              <i class="fa-solid fa-music"></i> Favorite Music Genres
-              <span class="required-badge">Required</span>
-            </span>
-            <p class="field-hint">Select at least one genre you enjoy</p>
-            
-            <div class="genre-grid">
-              <label class="genre-item">
+          <!-- Genre Selection - SIMPLE & CLEAN -->
+          <label class="field">
+            <span class="field-label">Favorite Genres (select at least one)</span>
+            <div class="genre-container">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Pop">
-                <div class="genre-content">
-                  <i class="fa-solid fa-music genre-icon"></i>
-                  <span class="genre-name">Pop</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Pop</span>
               </label>
-
-              <label class="genre-item">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Rock">
-                <div class="genre-content">
-                  <i class="fa-solid fa-guitar genre-icon"></i>
-                  <span class="genre-name">Rock</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Rock</span>
               </label>
-
-              <label class="genre-item">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Hip Hop">
-                <div class="genre-content">
-                  <i class="fa-solid fa-microphone genre-icon"></i>
-                  <span class="genre-name">Hip Hop</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Hip Hop</span>
               </label>
-
-              <label class="genre-item">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Classical">
-                <div class="genre-content">
-                  <i class="fa-solid fa-violin genre-icon"></i>
-                  <span class="genre-name">Classical</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Classical</span>
               </label>
-
-              <label class="genre-item">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Jazz">
-                <div class="genre-content">
-                  <i class="fa-solid fa-saxophone genre-icon"></i>
-                  <span class="genre-name">Jazz</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Jazz</span>
               </label>
-
-              <label class="genre-item">
+              <label class="genre-chip">
                 <input type="checkbox" name="genres[]" value="Country">
-                <div class="genre-content">
-                  <i class="fa-solid fa-hat-cowboy genre-icon"></i>
-                  <span class="genre-name">Country</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
-              </label>
-
-              <label class="genre-item">
-                <input type="checkbox" name="genres[]" value="Electronic">
-                <div class="genre-content">
-                  <i class="fa-solid fa-headphones genre-icon"></i>
-                  <span class="genre-name">Electronic</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
-              </label>
-
-              <label class="genre-item">
-                <input type="checkbox" name="genres[]" value="R&B">
-                <div class="genre-content">
-                  <i class="fa-solid fa-record-vinyl genre-icon"></i>
-                  <span class="genre-name">R&B</span>
-                  <div class="genre-check"><i class="fa-solid fa-check"></i></div>
-                </div>
+                <span class="genre-label">Country</span>
               </label>
             </div>
+            <div
+              id="signup-genre-error"
+              class="field-error"
+              aria-live="polite"
+            ></div>
+          </label>
 
-            <div id="signup-genre-error" class="field-error" aria-live="polite"></div>
-          </div>
+          <button type="submit" class="btn primary">Sign up</button>
 
-          <button type="submit" class="btn primary">Create Account</button>
-
-          <p class="switch-text">
-            Already have an account? <span id="to-login" class="switch-link">Log in</span>
+          <p class="muted clickable" id="to-login-wrapper">
+            Already have an account? <span id="to-login"><u>Log in</u></span>
           </p>
         </form>
       </section>

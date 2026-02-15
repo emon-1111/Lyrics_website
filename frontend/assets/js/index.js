@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // -------------------
   // Custom Alert Function
-  // -------------------
   function showCustomAlert(message) {
     const alertOverlay = document.getElementById('custom-alert');
     const alertMessage = document.getElementById('custom-alert-message');
@@ -15,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alertOverlay.classList.remove('show');
     };
     
-    // Close on overlay click
     alertOverlay.onclick = (e) => {
       if (e.target === alertOverlay) {
         alertOverlay.classList.remove('show');
@@ -34,23 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // -------------------
-  // Helper
-  // -------------------
   const qs = (sel) => document.querySelector(sel);
 
-  // -------------------
-  // Forms
-  // -------------------
   const loginForm = qs("#login-form");
   const signupForm = qs("#signup-form");
 
-  // Login fields
   const loginEmail = qs("#login-email");
   const loginPassword = qs("#login-password");
   const loginEmailError = qs("#login-email-error");
 
-  // Signup fields
   const signupName = qs("#signup-name");
   const signupEmail = qs("#signup-email");
   const signupPassword = qs("#signup-password");
@@ -59,17 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupPasswordError = qs("#signup-password-error");
   const signupGenreError = qs("#signup-genre-error");
 
-  // Toggle buttons
   const loginTogglePw = qs("#login-toggle-pw");
   const signupTogglePw = qs("#signup-toggle-pw");
 
-  // Switch links
   const toSignup = qs("#to-signup-wrapper");
   const toLogin = qs("#to-login-wrapper");
 
-  // -------------------
-  // Utility functions
-  // -------------------
   function isValidGmail(email) {
     return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
   }
@@ -105,9 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm?.classList.remove("hidden");
   }
 
-  // -------------------
-  // Form switch
-  // -------------------
   toSignup?.addEventListener("click", (e) => {
     e.preventDefault();
     showSignupForm();
@@ -120,9 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loginEmail?.focus();
   });
 
-  // -------------------
-  // Password toggles
-  // -------------------
   loginTogglePw?.addEventListener("click", () => {
     if (!loginPassword) return;
     loginPassword.type = loginPassword.type === "password" ? "text" : "password";
@@ -137,9 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (icon) icon.className = signupPassword.type === "password" ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
   });
 
-  // -------------------
-  // Real-time validation for SIGNUP only
-  // -------------------
   signupName?.addEventListener("input", () => {
     if (signupName.value.trim().length < 2) {
       signupNameError.textContent = "Enter your full name.";
@@ -170,9 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------
-  // Real-time validation for LOGIN
-  // -------------------
   loginEmail?.addEventListener("input", () => {
     if (!isValidEmail(loginEmail.value.trim())) {
       loginEmailError.textContent = "Enter a valid email.";
@@ -183,9 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------
-  // Submit validation
-  // -------------------
   signupForm?.addEventListener("submit", (e) => {
     let ok = true;
     if (!signupName || signupName.value.trim().length < 2) { 
@@ -204,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ok = false; 
     }
     
-    // Validate genre selection
     const selectedGenres = getSelectedGenres();
     if (selectedGenres.length === 0) {
       signupGenreError.textContent = "Please select at least one music genre.";

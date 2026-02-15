@@ -1,5 +1,7 @@
 <?php
-session_start(); // Add this to start sessions
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $host = "localhost";
 $user = "root";

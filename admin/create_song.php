@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
@@ -14,6 +16,115 @@ include "../config/db.php";
     <title>Create Song - Admin</title>
     <link rel="stylesheet" href="../frontend/assets/css/create.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <style>
+        .audio-toggle {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .toggle-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .toggle-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4ade80;
+        }
+        
+        .toggle-hint {
+            margin: 10px 0 0 32px;
+            font-size: 13px;
+            color: #b5b5b5;
+        }
+        
+        #audio-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        #audio-section h2 {
+            color: #4ade80;
+            margin-bottom: 20px;
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .file-input:hover {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+        
+        .file-hint {
+            font-size: 13px;
+            color: #b5b5b5;
+            margin-top: 8px;
+        }
+        
+        .helper-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #4ade80;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .helper-link:hover {
+            text-decoration: underline;
+        }
+        
+        .form-section {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .section-hint {
+            color: #b5b5b5;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .lyrics-counter {
+            text-align: right;
+            color: #4ade80;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -43,17 +154,15 @@ include "../config/db.php";
             </div>
 
             <!-- Audio Option Toggle -->
-            <div class="form-section">
-                <div class="audio-toggle">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="has-audio-toggle" name="has_audio" value="1">
-                        <span class="toggle-text">
-                            <i class="fa-solid fa-headphones"></i> 
-                            This song has audio (MP3 + LRC sync)
-                        </span>
-                    </label>
-                    <p class="toggle-hint">Enable this if you want to upload MP3 and synced lyrics (LRC file)</p>
-                </div>
+            <div class="audio-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="has-audio-toggle" name="has_audio" value="1">
+                    <span class="toggle-text">
+                        <i class="fa-solid fa-headphones"></i> 
+                        This song has audio (MP3 + LRC sync)
+                    </span>
+                </label>
+                <p class="toggle-hint">Enable this if you want to upload MP3 and synced lyrics (LRC file)</p>
             </div>
 
             <!-- Audio Upload Section (Hidden by default) -->
@@ -108,45 +217,52 @@ include "../config/db.php";
     </div>
 
     <script>
-        // Toggle audio section
-        const audioToggle = document.getElementById('has-audio-toggle');
-        const audioSection = document.getElementById('audio-section');
-        const audioFileInput = document.getElementById('audio_file');
-        const lrcFileInput = document.getElementById('lrc_file');
-        const lyricsHint = document.getElementById('lyrics-hint');
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioToggle = document.getElementById('has-audio-toggle');
+            const audioSection = document.getElementById('audio-section');
+            const audioFileInput = document.getElementById('audio_file');
+            const lrcFileInput = document.getElementById('lrc_file');
+            const lyricsHint = document.getElementById('lyrics-hint');
 
-        audioToggle.addEventListener('change', function() {
-            if (this.checked) {
-                audioSection.style.display = 'block';
-                audioFileInput.required = true;
-                lrcFileInput.required = true;
-                lyricsHint.innerHTML = '<strong>Note:</strong> When using LRC file, these lyrics are for reference only. The LRC file will be used for syncing.';
-            } else {
-                audioSection.style.display = 'none';
-                audioFileInput.required = false;
-                lrcFileInput.required = false;
-                lyricsHint.textContent = 'Enter the song lyrics (one line per verse/chorus)';
-            }
-        });
+            console.log('Script loaded'); // Debug
 
-        // Line counter for lyrics
-        const lyricsTextarea = document.getElementById('lyrics');
-        const lineCountSpan = document.getElementById('line-count');
-
-        lyricsTextarea.addEventListener('input', function() {
-            const lines = this.value.split('\n').filter(line => line.trim() !== '');
-            lineCountSpan.textContent = lines.length;
-        });
-
-        // Form validation
-        document.getElementById('create-song-form').addEventListener('submit', function(e) {
-            if (audioToggle.checked) {
-                if (!audioFileInput.files.length || !lrcFileInput.files.length) {
-                    e.preventDefault();
-                    alert('Please upload both MP3 and LRC files when audio option is enabled.');
-                    return false;
+            // Toggle audio section
+            audioToggle.addEventListener('change', function() {
+                console.log('Checkbox changed:', this.checked); // Debug
+                
+                if (this.checked) {
+                    audioSection.style.display = 'block';
+                    audioFileInput.required = true;
+                    lrcFileInput.required = true;
+                    lyricsHint.innerHTML = '<strong>Note:</strong> When using LRC file, these lyrics are for reference only. The LRC file will be used for syncing.';
+                } else {
+                    audioSection.style.display = 'none';
+                    audioFileInput.required = false;
+                    lrcFileInput.required = false;
+                    lyricsHint.textContent = 'Enter the song lyrics (one line per verse/chorus)';
                 }
-            }
+            });
+
+            // Line counter for lyrics
+            const lyricsTextarea = document.getElementById('lyrics');
+            const lineCountSpan = document.getElementById('line-count');
+
+            lyricsTextarea.addEventListener('input', function() {
+                const lines = this.value.split('\n').filter(line => line.trim() !== '');
+                lineCountSpan.textContent = lines.length;
+            });
+
+            // Form validation
+            document.getElementById('create-song-form').addEventListener('submit', function(e) {
+                if (audioToggle.checked) {
+                    if (!audioFileInput.files.length || !lrcFileInput.files.length) {
+                        e.preventDefault();
+                        alert('Please upload both MP3 and LRC files when audio option is enabled.');
+                        return false;
+                    }
+                }
+            });
         });
     </script>
 </body>

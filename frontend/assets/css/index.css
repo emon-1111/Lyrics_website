@@ -175,11 +175,11 @@ input {
   cursor: pointer;
 }
 
-/* Genre Selection - 3 COLUMNS */
+/* Genre Selection - 2 ROWS, 3 COLUMNS */
 .genre-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
 }
 
@@ -193,11 +193,11 @@ input {
 
 .genre-label {
   display: block;
-  padding: 10px 6px;
+  padding: 12px 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   transition: all 0.2s;
   user-select: none;

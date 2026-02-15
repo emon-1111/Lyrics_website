@@ -1,15 +1,8 @@
 <?php
-// Buffer ALL output so PHP warnings/notices don't corrupt the JSON response
 ob_start();
-
 include "../config/db.php";
-
-// Suppress PHP notices/warnings from leaking into JSON
 error_reporting(0);
-
-// Clear any output printed by db.php (e.g. session_start warnings)
 ob_clean();
-
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -20,6 +13,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 $type = isset($_POST['type']) ? $_POST['type'] : '';
+
+// ─── DEBUG MODE — visit save_song.php?debug in browser to diagnose ────────
+if (isset($_GET['debug'])) {
+    ob_end_clean();
+    header('Content-Type: text/plain');
+    echo "=== SESSION ===\n";
+    print_r($_SESSION);
+    echo "\n=== POST ===\n";
+    print_r($_POST);
+    echo "\n=== FILES ===\n";
+    print_r($_FILES);
+    echo "\n=== DB CONNECTION ===\n";
+    echo isset($conn) ? "OK (host: " . $conn->host_info . ")" : "FAILED";
+    echo "\n\n=== SONGS TABLE COLUMNS ===\n";
+    $r = $conn->query("SHOW COLUMNS FROM songs");
+    if ($r) { while ($row = $r->fetch_assoc()) echo $row['Field'] . " (" . $row['Type'] . ")\n"; }
+    else echo "ERROR: " . $conn->error;
+    echo "\n=== upload_max_filesize: " . ini_get('upload_max_filesize') . " ===\n";
+    echo "=== post_max_size: " . ini_get('post_max_size') . " ===\n";
+    exit;
+}
 
 // ─── AUDIO SONG (MP3 + LRC) ───────────────────────────────────────────────
 if ($type === 'audio') {
@@ -111,7 +125,7 @@ if ($type === 'audio') {
         exit;
     }
 
-    // ── Paths stored in DB (relative to project root) ──
+    // ── Paths stored in DB ──
     $mp3DbPath = 'uploads/audio/' . $mp3Filename;
     $lrcDbPath = 'uploads/audio/' . $lrcFilename;
     $hasAudio  = 1;

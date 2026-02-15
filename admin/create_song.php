@@ -1,294 +1,153 @@
 <?php
-include "../config/db.php";
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
 }
+include "../config/db.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Song - Admin Panel</title>
-  <link rel="icon" type="image/png" href="../favicon.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  <link rel="stylesheet" href="../frontend/assets/css/user.css">
-  <link rel="stylesheet" href="../frontend/assets/css/create.css">
-  <style>
-    /* Custom Alert Box */
-    .custom-alert {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.7);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      z-index: 10000;
-      min-width: 400px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
-    .custom-alert.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: all;
-    }
-    .alert-content {
-      text-align: center;
-    }
-    .alert-icon {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
-    .alert-icon.success {
-      color: #4ade80;
-    }
-    .alert-icon.error {
-      color: #ff4d4d;
-    }
-    .alert-title {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: var(--text);
-    }
-    .alert-message {
-      font-size: 16px;
-      color: var(--dim);
-      margin-bottom: 25px;
-    }
-    .alert-btn {
-      background: var(--bar);
-      border: 1px solid var(--line);
-      color: var(--text);
-      padding: 12px 30px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    .alert-btn:hover {
-      background: var(--line);
-    }
-    .alert-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .alert-overlay.show {
-      opacity: 1;
-      pointer-events: all;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Song - Admin</title>
+    <link rel="stylesheet" href="../frontend/assets/css/create.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
 <body>
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fa-solid fa-music"></i> Create New Song</h1>
+            <a href="dashboard.php" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+        </header>
 
-  <!-- Navbar -->
-  <nav class="navbar">
-    <img src="../frontend/assets/images/transparent_logo.png" alt="Logo" class="logo">
-    
-    <div class="nav-item" data-page="dashboard.php">
-      <i class="fa-solid fa-music icon"></i>
-      <span>Songs</span>
-    </div>
-    
-    <div class="nav-item" data-page="create_song.php">
-      <i class="fa-solid fa-plus icon"></i>
-      <span>Create Song</span>
-    </div>
-    
-    <div class="nav-item" data-page="users.php">
-      <i class="fa-solid fa-users icon"></i>
-      <span>Users</span>
-    </div>
-    
-    <i class="fa-solid fa-bars icon" style="cursor: pointer;"></i>
-  </nav>
+        <form id="create-song-form" method="POST" action="save_song.php" enctype="multipart/form-data">
+            <div class="form-section">
+                <h2>Basic Information</h2>
+                
+                <div class="form-group">
+                    <label for="title">Song Title *</label>
+                    <input type="text" id="title" name="title" required placeholder="Enter song title">
+                </div>
 
-  <!-- Dropdown Menu -->
-  <ul class="dropdown-menu" id="dropdownMenu">
-    <li data-link="dashboard.php">
-      <i class="fa-solid fa-music"></i>
-      <span>Songs</span>
-    </li>
-    <li data-link="create_song.php">
-      <i class="fa-solid fa-plus"></i>
-      <span>Create Song</span>
-    </li>
-    <li data-link="users.php">
-      <i class="fa-solid fa-users"></i>
-      <span>Users</span>
-    </li>
-    <li class="logout" data-link="../auth/logout.php">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      <span>Logout</span>
-    </li>
-  </ul>
+                <div class="form-group">
+                    <label for="artist">Artist *</label>
+                    <input type="text" id="artist" name="artist" required placeholder="Enter artist name">
+                </div>
 
-  <!-- Page Content -->
-  <div class="page-content create-page">
-    <div class="create-container">
-      <h1 style="font-size: 28px; margin-bottom: 20px;">Create New Song</h1>
-      
-      <form id="song-form" method="POST" action="save_song.php">
-        
-        <label>Song Title *</label>
-        <input type="text" name="title" placeholder="Enter song title" required>
-        
-        <label>Subtitle (Optional)</label>
-        <input type="text" name="subtitle" placeholder="Artist name or album">
-        
-        <div class="button-group-top">
-          <button type="button" id="duplicate-part">
-            <i class="fa-solid fa-copy"></i> Duplicate Part
-          </button>
-          <button type="button" id="add-part">
-            <i class="fa-solid fa-plus"></i> Add Part
-          </button>
-        </div>
-        
-        <div id="parts-wrapper">
-          <div class="part-container">
-            <div class="part-header">
-              <input type="text" class="part-label" placeholder="Verse" value="Verse">
-              <div class="part-actions">
-                <button type="button" title="Delete part">
-                  <i class="fa-solid fa-x"></i>
-                </button>
-              </div>
+                <div class="form-group">
+                    <label for="album">Album</label>
+                    <input type="text" id="album" name="album" placeholder="Enter album name (optional)">
+                </div>
             </div>
-            <textarea class="part-textarea" placeholder="Enter lyrics here..."></textarea>
-          </div>
-        </div>
-        
-        <div class="button-group-bottom">
-          <button type="button" id="reset-btn">
-            <i class="fa-solid fa-rotate-left"></i> Reset
-          </button>
-          <button type="submit">
-            <i class="fa-solid fa-save"></i> Save Song
-          </button>
-        </div>
-        
-      </form>
+
+            <!-- Audio Option Toggle -->
+            <div class="form-section">
+                <div class="audio-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="has-audio-toggle" name="has_audio" value="1">
+                        <span class="toggle-text">
+                            <i class="fa-solid fa-headphones"></i> 
+                            This song has audio (MP3 + LRC sync)
+                        </span>
+                    </label>
+                    <p class="toggle-hint">Enable this if you want to upload MP3 and synced lyrics (LRC file)</p>
+                </div>
+            </div>
+
+            <!-- Audio Upload Section (Hidden by default) -->
+            <div id="audio-section" class="form-section" style="display: none;">
+                <h2><i class="fa-solid fa-file-audio"></i> Audio Files</h2>
+                
+                <div class="form-group">
+                    <label for="audio_file">MP3 File *</label>
+                    <input type="file" id="audio_file" name="audio_file" accept=".mp3" class="file-input">
+                    <p class="file-hint">Upload the song audio file (MP3 format only)</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="lrc_file">LRC File (Synced Lyrics) *</label>
+                    <input type="file" id="lrc_file" name="lrc_file" accept=".lrc" class="file-input">
+                    <p class="file-hint">Upload synchronized lyrics file (.lrc format)</p>
+                    <a href="https://lrc-maker.github.io/" target="_blank" class="helper-link">
+                        <i class="fa-solid fa-external-link"></i> Need help creating LRC files?
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lyrics Section -->
+            <div class="form-section">
+                <h2><i class="fa-solid fa-align-left"></i> Lyrics</h2>
+                <p class="section-hint" id="lyrics-hint">
+                    Enter the song lyrics (one line per verse/chorus)
+                </p>
+                
+                <div class="form-group">
+                    <label for="lyrics">Song Lyrics *</label>
+                    <textarea 
+                        id="lyrics" 
+                        name="lyrics" 
+                        rows="15" 
+                        required 
+                        placeholder="Enter lyrics here...&#10;Line 1&#10;Line 2&#10;Line 3"
+                    ></textarea>
+                    <p class="lyrics-counter"><span id="line-count">0</span> lines</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-save"></i> Create Song
+                </button>
+                <button type="reset" class="btn-secondary">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+            </div>
+        </form>
     </div>
-  </div>
 
-  <!-- Custom Alert Box -->
-  <div class="alert-overlay" id="alertOverlay"></div>
-  <div class="custom-alert" id="customAlert">
-    <div class="alert-content">
-      <div class="alert-icon" id="alertIcon">
-        <i class="fa-solid fa-circle-check"></i>
-      </div>
-      <div class="alert-title" id="alertTitle">Success!</div>
-      <div class="alert-message" id="alertMessage">Song created successfully!</div>
-      <button class="alert-btn" onclick="closeAlert()">OK</button>
-    </div>
-  </div>
+    <script>
+        // Toggle audio section
+        const audioToggle = document.getElementById('has-audio-toggle');
+        const audioSection = document.getElementById('audio-section');
+        const audioFileInput = document.getElementById('audio_file');
+        const lrcFileInput = document.getElementById('lrc_file');
+        const lyricsHint = document.getElementById('lyrics-hint');
 
-  <script src="../frontend/assets/js/user.js"></script>
-  <script src="../frontend/assets/js/create.js"></script>
-  <script>
-    function showAlert(type, title, message, redirect = null) {
-      const alert = document.getElementById('customAlert');
-      const overlay = document.getElementById('alertOverlay');
-      const icon = document.getElementById('alertIcon');
-      const alertTitle = document.getElementById('alertTitle');
-      const alertMessage = document.getElementById('alertMessage');
+        audioToggle.addEventListener('change', function() {
+            if (this.checked) {
+                audioSection.style.display = 'block';
+                audioFileInput.required = true;
+                lrcFileInput.required = true;
+                lyricsHint.innerHTML = '<strong>Note:</strong> When using LRC file, these lyrics are for reference only. The LRC file will be used for syncing.';
+            } else {
+                audioSection.style.display = 'none';
+                audioFileInput.required = false;
+                lrcFileInput.required = false;
+                lyricsHint.textContent = 'Enter the song lyrics (one line per verse/chorus)';
+            }
+        });
 
-      // Set content
-      alertTitle.textContent = title;
-      alertMessage.textContent = message;
+        // Line counter for lyrics
+        const lyricsTextarea = document.getElementById('lyrics');
+        const lineCountSpan = document.getElementById('line-count');
 
-      // Set icon
-      if (type === 'success') {
-        icon.className = 'alert-icon success';
-        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-      } else {
-        icon.className = 'alert-icon error';
-        icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-      }
+        lyricsTextarea.addEventListener('input', function() {
+            const lines = this.value.split('\n').filter(line => line.trim() !== '');
+            lineCountSpan.textContent = lines.length;
+        });
 
-      // Show alert
-      overlay.classList.add('show');
-      alert.classList.add('show');
-
-      // Store redirect URL if provided
-      if (redirect) {
-        alert.dataset.redirect = redirect;
-      }
-    }
-
-    function closeAlert() {
-      const alert = document.getElementById('customAlert');
-      const overlay = document.getElementById('alertOverlay');
-      
-      overlay.classList.remove('show');
-      alert.classList.remove('show');
-
-      // Redirect if URL is stored
-      if (alert.dataset.redirect) {
-        setTimeout(() => {
-          window.location.href = alert.dataset.redirect;
-        }, 300);
-      }
-    }
-
-    // Override form submission to collect parts data
-    document.getElementById('song-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const parts = [];
-      document.querySelectorAll('.part-container').forEach(part => {
-        const label = part.querySelector('.part-label').value.trim();
-        const text = part.querySelector('.part-textarea').value.trim();
-        if (label && text) {
-          parts.push({ label, text });
-        }
-      });
-
-      if (parts.length === 0) {
-        showAlert('error', 'Error', 'Please add at least one song part with lyrics');
-        return;
-      }
-
-      // Create FormData
-      const formData = new FormData(this);
-      formData.append('parts', JSON.stringify(parts));
-
-      // Submit via fetch
-      fetch('save_song.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(data => {
-        // Check if success
-        if (data.includes('success')) {
-          showAlert('success', 'Success!', 'Song created successfully and is now public!', 'dashboard.php');
-        } else {
-          showAlert('error', 'Error', 'Failed to create song. Please try again.');
-        }
-      })
-      .catch(error => {
-        showAlert('error', 'Error', 'Network error. Please try again.');
-      });
-    });
-  </script>
+        // Form validation
+        document.getElementById('create-song-form').addEventListener('submit', function(e) {
+            if (audioToggle.checked) {
+                if (!audioFileInput.files.length || !lrcFileInput.files.length) {
+                    e.preventDefault();
+                    alert('Please upload both MP3 and LRC files when audio option is enabled.');
+                    return false;
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 <?php
-include "../config/db.php";
-
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
 }
@@ -9,459 +10,449 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Song - With Audio</title>
-  <link rel="icon" type="image/png" href="../favicon.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  <link rel="stylesheet" href="../frontend/assets/css/user.css">
-  <link rel="stylesheet" href="../frontend/assets/css/create.css">
-  <style>
-    /* Audio File Upload Styles */
-    .audio-upload-section {
-      background: rgba(74, 222, 128, 0.05);
-      border: 2px solid rgba(74, 222, 128, 0.2);
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-    }
-    
-    .audio-upload-section h3 {
-      color: #4ade80;
-      margin: 0 0 15px 0;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Song with Audio - Admin</title>
+    <link rel="stylesheet" href="../frontend/assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <style>
+        .create-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 40px 20px;
+        }
 
-    .file-upload-wrapper {
-      margin-bottom: 15px;
-    }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #b5b5b5;
+            text-decoration: none;
+            margin-bottom: 30px;
+            transition: color 0.2s;
+        }
 
-    .file-upload-wrapper label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--text);
-      font-size: 14px;
-    }
+        .back-link:hover {
+            color: #fff;
+        }
 
-    .file-input-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        .create-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    .file-input-container input[type="file"] {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+        .create-header h1 {
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
 
-    .file-input-container input[type="file"]:hover {
-      border-color: #4ade80;
-      background: rgba(74, 222, 128, 0.1);
-    }
+        .create-header p {
+            color: #b5b5b5;
+            font-size: 16px;
+        }
 
-    .file-hint {
-      font-size: 12px;
-      color: var(--dim);
-      margin-top: 5px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+        .create-form {
+            background: linear-gradient(180deg, #111, #0f0f0f);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 40px;
+        }
 
-    .helper-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #4ade80;
-      text-decoration: none;
-      font-size: 13px;
-      margin-top: 8px;
-      transition: all 0.2s;
-    }
+        .form-group {
+            margin-bottom: 24px;
+        }
 
-    .helper-link:hover {
-      text-decoration: underline;
-    }
+        .form-group label {
+            display: block;
+            color: #b5b5b5;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    .info-note {
-      background: rgba(102, 126, 234, 0.1);
-      border-left: 4px solid #667eea;
-      padding: 12px 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: var(--dim);
-      line-height: 1.5;
-    }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
 
-    .info-note strong {
-      color: #667eea;
-    }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
 
-    .premium-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(74, 222, 128, 0.1);
-      color: #4ade80;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-left: 10px;
-    }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
 
-    /* Custom Alert Box */
-    .custom-alert {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.7);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      z-index: 10000;
-      min-width: 400px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
-    .custom-alert.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: all;
-    }
-    .alert-content {
-      text-align: center;
-    }
-    .alert-icon {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
-    .alert-icon.success {
-      color: #4ade80;
-    }
-    .alert-icon.error {
-      color: #ff4d4d;
-    }
-    .alert-title {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: var(--text);
-    }
-    .alert-message {
-      font-size: 16px;
-      color: var(--dim);
-      margin-bottom: 25px;
-    }
-    .alert-btn {
-      background: var(--bar);
-      border: 1px solid var(--line);
-      color: var(--text);
-      padding: 12px 30px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    .alert-btn:hover {
-      background: var(--line);
-    }
-    .alert-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .alert-overlay.show {
-      opacity: 1;
-      pointer-events: all;
-    }
-  </style>
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .file-upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .file-upload-icon {
+            font-size: 36px;
+            color: #4ade80;
+            margin-bottom: 12px;
+        }
+
+        .file-upload-text {
+            color: #b5b5b5;
+            font-size: 15px;
+        }
+
+        .file-upload-text span {
+            color: #4ade80;
+            font-weight: 600;
+        }
+
+        .file-upload-hint {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .file-selected-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #4ade80;
+            display: none;
+        }
+
+        .form-divider {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin: 30px 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #b5b5b5;
+            font-size: 13px;
+            padding: 8px;
+        }
+
+        .error-msg {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #f87171;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .create-form {
+                padding: 24px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar">
-    <img src="../frontend/assets/images/transparent_logo.png" alt="Logo" class="logo">
-    
-    <div class="nav-item" data-page="dashboard.php">
-      <i class="fa-solid fa-music icon"></i>
-      <span>Songs</span>
-    </div>
-    
-    <div class="nav-item" data-page="create_song_choice.php">
-      <i class="fa-solid fa-plus icon"></i>
-      <span>Create Song</span>
-    </div>
-    
-    <div class="nav-item" data-page="users.php">
-      <i class="fa-solid fa-users icon"></i>
-      <span>Users</span>
-    </div>
-    
-    <i class="fa-solid fa-bars icon" style="cursor: pointer;"></i>
-  </nav>
-
-  <!-- Dropdown Menu -->
-  <ul class="dropdown-menu" id="dropdownMenu">
-    <li data-link="dashboard.php">
-      <i class="fa-solid fa-music"></i>
-      <span>Songs</span>
-    </li>
-    <li data-link="create_song_choice.php">
-      <i class="fa-solid fa-plus"></i>
-      <span>Create Song</span>
-    </li>
-    <li data-link="users.php">
-      <i class="fa-solid fa-users"></i>
-      <span>Users</span>
-    </li>
-    <li class="logout" data-link="../auth/logout.php">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      <span>Logout</span>
-    </li>
-  </ul>
-
-  <!-- Page Content -->
-  <div class="page-content create-page">
     <div class="create-container">
-      <h1 style="font-size: 28px; margin-bottom: 20px;">
-        Create New Song (With Audio)
-        <span class="premium-badge">
-          <i class="fa-solid fa-star"></i> PREMIUM
-        </span>
-      </h1>
-      
-      <form id="song-form" method="POST" action="save_song.php" enctype="multipart/form-data">
-        
-        <label>Song Title *</label>
-        <input type="text" name="title" placeholder="Enter song title" required>
-        
-        <label>Subtitle (Optional)</label>
-        <input type="text" name="subtitle" placeholder="Artist name or album">
+        <a href="create_song_choice.php" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
 
-        <!-- Audio Upload Section -->
-        <div class="audio-upload-section">
-          <h3>
-            <i class="fa-solid fa-headphones"></i> Audio Files
-          </h3>
+        <div class="create-header">
+            <h1><i class="fa-solid fa-headphones"></i> Create Song with Audio</h1>
+            <p>Upload an MP3 and LRC file to create a synced lyrics experience</p>
+        </div>
 
-          <div class="info-note">
-            <strong>Note:</strong> Both MP3 and LRC files are required. 
-            Get LRC files from <a href="https://megalobiz.com/search/all" target="_blank" style="color: #4ade80;">Megalobiz</a> 
-            or <a href="https://lrc-maker.github.io/" target="_blank" style="color: #4ade80;">create your own</a>.
-          </div>
+        <div class="error-msg" id="errorMsg"></div>
 
-          <div class="file-upload-wrapper">
-            <label><strong>MP3 File *</strong></label>
-            <div class="file-input-container">
-              <input type="file" name="audio_file" accept=".mp3" required>
+        <form class="create-form" id="audioSongForm" action="save_song.php" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="audio">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Song Title *</label>
+                    <input type="text" id="title" name="title" placeholder="e.g. Bohemian Rhapsody" required>
+                </div>
+                <div class="form-group">
+                    <label for="subtitle">Artist / Subtitle</label>
+                    <input type="text" id="subtitle" name="subtitle" placeholder="e.g. Queen">
+                </div>
             </div>
-            <p class="file-hint">
-              <i class="fa-solid fa-circle-info"></i> Upload song audio (MP3 format, max 10MB)
-            </p>
-          </div>
 
-          <div class="file-upload-wrapper">
-            <label><strong>LRC File (Synced Lyrics) *</strong></label>
-            <div class="file-input-container">
-              <input type="file" name="lrc_file" accept=".lrc" required>
+            <hr class="form-divider">
+
+            <!-- MP3 Upload -->
+            <div class="form-group">
+                <label>MP3 Audio File *</label>
+                <div class="file-upload-area" id="mp3DropArea">
+                    <input type="file" name="mp3_file" id="mp3File" accept=".mp3,audio/mpeg" required>
+                    <div class="file-upload-icon">
+                        <i class="fa-solid fa-music"></i>
+                    </div>
+                    <div class="file-upload-text">
+                        <span>Click to upload</span> or drag &amp; drop
+                    </div>
+                    <div class="file-upload-hint">MP3 files only · Max 30MB</div>
+                    <div class="file-selected-name" id="mp3FileName"></div>
+                </div>
             </div>
-            <p class="file-hint">
-              <i class="fa-solid fa-circle-info"></i> Upload synchronized lyrics (.lrc format)
-            </p>
-            <a href="https://lrc-maker.github.io/" target="_blank" class="helper-link">
-              <i class="fa-solid fa-external-link"></i> Create LRC file online
-            </a>
-          </div>
-        </div>
 
-        <!-- Lyrics Section (Reference) -->
-        <label>Lyrics (Reference) *</label>
-        <p style="font-size: 13px; color: var(--dim); margin: -5px 0 10px 0;">
-          These lyrics are for backup/reference. The LRC file will be used for synced display.
-        </p>
-        
-        <div class="button-group-top">
-          <button type="button" id="duplicate-part">
-            <i class="fa-solid fa-copy"></i> Duplicate Part
-          </button>
-          <button type="button" id="add-part">
-            <i class="fa-solid fa-plus"></i> Add Part
-          </button>
-        </div>
-        
-        <div id="parts-wrapper">
-          <div class="part-container">
-            <div class="part-header">
-              <input type="text" class="part-label" placeholder="Verse" value="Verse">
-              <div class="part-actions">
-                <button type="button" title="Delete part">
-                  <i class="fa-solid fa-x"></i>
-                </button>
-              </div>
+            <!-- LRC Upload -->
+            <div class="form-group">
+                <label>LRC Lyrics File *</label>
+                <div class="file-upload-area" id="lrcDropArea">
+                    <input type="file" name="lrc_file" id="lrcFile" accept=".lrc,text/plain" required>
+                    <div class="file-upload-icon" style="color:#667eea;">
+                        <i class="fa-solid fa-align-left"></i>
+                    </div>
+                    <div class="file-upload-text">
+                        <span style="color:#667eea;">Click to upload</span> or drag &amp; drop
+                    </div>
+                    <div class="file-upload-hint">LRC files only · Timestamped lyrics format</div>
+                    <div class="file-selected-name" id="lrcFileName" style="color:#667eea;"></div>
+                </div>
             </div>
-            <textarea class="part-textarea" placeholder="Enter lyrics here (for reference)..."></textarea>
-          </div>
-        </div>
 
-        <!-- Hidden field to mark as audio song -->
-        <input type="hidden" name="has_audio" value="1">
-        
-        <div class="button-group-bottom">
-          <button type="button" id="reset-btn">
-            <i class="fa-solid fa-rotate-left"></i> Reset
-          </button>
-          <button type="submit">
-            <i class="fa-solid fa-save"></i> Save Song with Audio
-          </button>
-        </div>
-        
-      </form>
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Create Song
+            </button>
+        </form>
     </div>
-  </div>
 
-  <!-- Custom Alert Box -->
-  <div class="alert-overlay" id="alertOverlay"></div>
-  <div class="custom-alert" id="customAlert">
-    <div class="alert-content">
-      <div class="alert-icon" id="alertIcon">
-        <i class="fa-solid fa-circle-check"></i>
-      </div>
-      <div class="alert-title" id="alertTitle">Success!</div>
-      <div class="alert-message" id="alertMessage">Song created successfully!</div>
-      <button class="alert-btn" onclick="closeAlert()">OK</button>
-    </div>
-  </div>
+    <script>
+        // File input display
+        function setupFileInput(inputId, fileNameId, dropAreaId) {
+            const input = document.getElementById(inputId);
+            const nameDisplay = document.getElementById(fileNameId);
+            const dropArea = document.getElementById(dropAreaId);
 
-  <script src="../frontend/assets/js/user.js"></script>
-  <script src="../frontend/assets/js/create.js"></script>
-  <script>
-    function showAlert(type, title, message, redirect = null) {
-      const alert = document.getElementById('customAlert');
-      const overlay = document.getElementById('alertOverlay');
-      const icon = document.getElementById('alertIcon');
-      const alertTitle = document.getElementById('alertTitle');
-      const alertMessage = document.getElementById('alertMessage');
+            input.addEventListener('change', () => {
+                if (input.files[0]) {
+                    nameDisplay.textContent = '✓ ' + input.files[0].name;
+                    nameDisplay.style.display = 'block';
+                    dropArea.style.borderStyle = 'solid';
+                }
+            });
 
-      alertTitle.textContent = title;
-      alertMessage.textContent = message;
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('dragover');
+            });
 
-      if (type === 'success') {
-        icon.className = 'alert-icon success';
-        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-      } else {
-        icon.className = 'alert-icon error';
-        icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-      }
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('dragover');
+            });
 
-      overlay.classList.add('show');
-      alert.classList.add('show');
-
-      if (redirect) {
-        alert.dataset.redirect = redirect;
-      }
-    }
-
-    function closeAlert() {
-      const alert = document.getElementById('customAlert');
-      const overlay = document.getElementById('alertOverlay');
-      
-      overlay.classList.remove('show');
-      alert.classList.remove('show');
-
-      if (alert.dataset.redirect) {
-        setTimeout(() => {
-          window.location.href = alert.dataset.redirect;
-        }, 300);
-      }
-    }
-
-    // File validation
-    const audioFile = document.querySelector('input[name="audio_file"]');
-    const lrcFile = document.querySelector('input[name="lrc_file"]');
-
-    audioFile.addEventListener('change', function() {
-      if (this.files.length > 0) {
-        const fileSize = this.files[0].size / 1024 / 1024; // MB
-        if (fileSize > 10) {
-          showAlert('error', 'Error', 'MP3 file size should not exceed 10MB');
-          this.value = '';
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    nameDisplay.textContent = '✓ ' + file.name;
+                    nameDisplay.style.display = 'block';
+                    dropArea.style.borderStyle = 'solid';
+                }
+            });
         }
-      }
-    });
 
-    // Override form submission
-    document.getElementById('song-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+        setupFileInput('mp3File', 'mp3FileName', 'mp3DropArea');
+        setupFileInput('lrcFile', 'lrcFileName', 'lrcDropArea');
 
-      // Validate files
-      if (!audioFile.files.length) {
-        showAlert('error', 'Error', 'Please upload an MP3 file');
-        return;
-      }
-      if (!lrcFile.files.length) {
-        showAlert('error', 'Error', 'Please upload an LRC file');
-        return;
-      }
+        // Form submission with progress
+        document.getElementById('audioSongForm').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-      // Collect parts
-      const parts = [];
-      document.querySelectorAll('.part-container').forEach(part => {
-        const label = part.querySelector('.part-label').value.trim();
-        const text = part.querySelector('.part-textarea').value.trim();
-        if (label && text) {
-          parts.push({ label, text });
-        }
-      });
+            const title = document.getElementById('title').value.trim();
+            const mp3 = document.getElementById('mp3File').files[0];
+            const lrc = document.getElementById('lrcFile').files[0];
+            const errorMsg = document.getElementById('errorMsg');
 
-      if (parts.length === 0) {
-        showAlert('error', 'Error', 'Please add at least one song part with lyrics');
-        return;
-      }
+            // Validate
+            if (!title) {
+                errorMsg.textContent = 'Please enter a song title.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!mp3) {
+                errorMsg.textContent = 'Please upload an MP3 file.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!lrc) {
+                errorMsg.textContent = 'Please upload an LRC file.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!mp3.name.toLowerCase().endsWith('.mp3')) {
+                errorMsg.textContent = 'Audio file must be an MP3.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (mp3.size > 30 * 1024 * 1024) {
+                errorMsg.textContent = 'MP3 file is too large. Maximum size is 30MB.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!lrc.name.toLowerCase().endsWith('.lrc')) {
+                errorMsg.textContent = 'Lyrics file must be an LRC file.';
+                errorMsg.style.display = 'block';
+                return;
+            }
 
-      // Create FormData
-      const formData = new FormData(this);
-      formData.append('parts', JSON.stringify(parts));
+            errorMsg.style.display = 'none';
 
-      // Submit
-      fetch('save_song.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(data => {
-        if (data.includes('success')) {
-          showAlert('success', 'Success!', 'Song with audio created successfully!', 'dashboard.php');
-        } else {
-          showAlert('error', 'Error', 'Failed to create song. Please try again.');
-        }
-      })
-      .catch(error => {
-        showAlert('error', 'Error', 'Network error. Please try again.');
-      });
-    });
-  </script>
+            const submitBtn = document.getElementById('submitBtn');
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            submitBtn.disabled = true;
+            progressDiv.style.display = 'block';
+
+            const formData = new FormData(this);
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = pct + '%';
+                    progressText.textContent = 'Uploading... ' + pct + '%';
+                }
+            });
+
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200) {
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.success) {
+                            progressText.textContent = 'Song created successfully! Redirecting...';
+                            progressBar.style.width = '100%';
+                            setTimeout(() => {
+                                window.location.href = 'song.php';
+                            }, 1000);
+                        } else {
+                            errorMsg.textContent = res.message || 'Failed to create song.';
+                            errorMsg.style.display = 'block';
+                            submitBtn.disabled = false;
+                            progressDiv.style.display = 'none';
+                        }
+                    } catch (err) {
+                        errorMsg.textContent = 'Unexpected server response.';
+                        errorMsg.style.display = 'block';
+                        submitBtn.disabled = false;
+                        progressDiv.style.display = 'none';
+                    }
+                } else {
+                    errorMsg.textContent = 'Upload failed. Server error ' + xhr.status;
+                    errorMsg.style.display = 'block';
+                    submitBtn.disabled = false;
+                    progressDiv.style.display = 'none';
+                }
+            });
+
+            xhr.addEventListener('error', () => {
+                errorMsg.textContent = 'Network error. Please try again.';
+                errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                progressDiv.style.display = 'none';
+            });
+
+            xhr.open('POST', 'save_song.php');
+            xhr.send(formData);
+        });
+    </script>
 </body>
 </html>

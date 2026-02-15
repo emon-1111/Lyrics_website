@@ -430,7 +430,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                             progressDiv.style.display = 'none';
                         }
                     } catch (err) {
-                        errorMsg.textContent = 'Unexpected server response.';
+                        console.error('Raw response:', xhr.responseText);
+                        errorMsg.textContent = 'Server said: ' + xhr.responseText.substring(0, 300);
                         errorMsg.style.display = 'block';
                         submitBtn.disabled = false;
                         progressDiv.style.display = 'none';

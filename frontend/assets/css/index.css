@@ -40,7 +40,7 @@ body {
 .logo {
   max-width: 200px;
   height: auto;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 
 .card {
@@ -51,7 +51,28 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
   margin-bottom: 12px;
   transition: transform var(--transition);
+  max-height: 85vh;
+  overflow-y: auto;
 }
+
+.card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.card::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .card.hidden {
   display: none;
 }
@@ -158,10 +179,10 @@ input {
   cursor: pointer;
 }
 
-/* Genre Selection - SIMPLE */
+/* Genre Selection - 3 PER ROW */
 .genre-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 8px;
 }
@@ -175,15 +196,16 @@ input {
 }
 
 .genre-label {
-  display: inline-block;
-  padding: 8px 16px;
+  display: block;
+  padding: 10px 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  font-size: 13px;
+  border-radius: 8px;
+  font-size: 12px;
   color: var(--muted);
   transition: all 0.2s;
   user-select: none;
+  text-align: center;
 }
 
 .genre-chip:hover .genre-label {
@@ -280,4 +302,11 @@ input {
 
 .custom-alert-btn:active {
   transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .genre-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

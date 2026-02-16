@@ -136,10 +136,32 @@ $result = $stmt->get_result();
   right: 16px;
   opacity: 0;
   transition: 0.2s;
+  display: flex;
+  gap: 6px;
 }
 
 .playlist-card:hover .playlist-actions {
   opacity: 1;
+}
+
+.edit-playlist-btn {
+  background: rgba(245,158,11,0.15);
+  border: 1px solid rgba(245,158,11,0.4);
+  color: #f59e0b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  font-size: 13px;
+}
+
+.edit-playlist-btn:hover {
+  background: rgba(245,158,11,0.3);
+  transform: scale(1.1);
 }
 
 .delete-playlist-btn {
@@ -338,6 +360,9 @@ $result = $stmt->get_result();
             </div>
             <?php if (!$playlist['is_default']): ?>
               <div class="playlist-actions" onclick="event.stopPropagation();">
+                <button class="edit-playlist-btn" onclick="editPlaylist(<?php echo $playlist['id']; ?>, '<?php echo htmlspecialchars(addslashes($playlist['name'])); ?>')">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
                 <button class="delete-playlist-btn" onclick="deletePlaylist(<?php echo $playlist['id']; ?>, '<?php echo htmlspecialchars(addslashes($playlist['name'])); ?>')">
                   <i class="fa-solid fa-trash"></i>
                 </button>
@@ -466,6 +491,49 @@ async function createPlaylist() {
       showAlert('error', 'Error', result.message || 'Failed to create playlist');
     }
   } catch (error) {
+    showAlert('error', 'Error', 'Network error. Please try again.');
+  }
+}
+
+function editPlaylist(playlistId, currentName) {
+  pendingPlaylistId = playlistId;
+  showAlert(
+    'success',
+    'Rename Playlist',
+    'Enter a new name for your playlist',
+    `
+      <button class="alert-btn" onclick="closeAlert()">Cancel</button>
+      <button class="alert-btn primary" onclick="confirmRenamePlaylist()">Rename</button>
+    `,
+    true
+  );
+  setTimeout(() => {
+    const input = document.getElementById('playlistNameInput');
+    if (input) {
+      input.value = currentName;
+      input.select();
+    }
+  }, 100);
+}
+
+async function confirmRenamePlaylist() {
+  const name = document.getElementById('playlistNameInput')?.value.trim();
+  if (!name) { showAlert('error', 'Error', 'Please enter a playlist name'); return; }
+
+  try {
+    const res = await fetch('rename_playlist.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playlist_id: pendingPlaylistId, name })
+    });
+    const result = await res.json();
+    if (result.success) {
+      showAlert('success', 'Renamed!', 'Playlist renamed successfully!');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showAlert('error', 'Error', result.message || 'Failed to rename playlist');
+    }
+  } catch {
     showAlert('error', 'Error', 'Network error. Please try again.');
   }
 }

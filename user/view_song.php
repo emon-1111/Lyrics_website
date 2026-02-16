@@ -307,6 +307,11 @@ $stmt->close();
   <div class="lyrics-header">
     <h1><?php echo htmlspecialchars($song['title']); ?></h1>
     <p><?php echo htmlspecialchars($song['subtitle']); ?></p>
+    <?php if (!empty($song['genre'])): ?>
+      <span style="display:inline-block;margin-top:10px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:0.5px;">
+        <i class="fa-solid fa-music" style="margin-right:5px;font-size:10px;"></i><?php echo htmlspecialchars($song['genre']); ?>
+      </span>
+    <?php endif; ?>
   </div>
 
   <?php if ($parts && is_array($parts)): ?>

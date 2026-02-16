@@ -190,6 +190,11 @@ $parts = json_decode($song['parts'], true);
         <?php if ($song['subtitle']): ?>
           <div class="subtitle"><?php echo htmlspecialchars($song['subtitle']); ?></div>
         <?php endif; ?>
+        <?php if (!empty($song['genre'])): ?>
+          <span style="display:inline-block;margin-bottom:12px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);color:#4ade80;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:600;letter-spacing:0.5px;">
+            <i class="fa-solid fa-music" style="margin-right:5px;font-size:10px;"></i><?php echo htmlspecialchars($song['genre']); ?>
+          </span>
+        <?php endif; ?>
         
         <div class="song-meta">
           <div class="meta-item">

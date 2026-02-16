@@ -31,6 +31,43 @@ body {
 }
 .create-container input[disabled] { background: #333; color: #aaa; }
 
+/* Select / Genre dropdown */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+.select-wrapper select {
+  width: 100%;
+  padding: 8px 36px 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bar);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.select-wrapper select:focus {
+  outline: none;
+  border-color: #444;
+}
+.select-wrapper select option {
+  background: var(--card);
+  color: var(--text);
+}
+.select-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--dim);
+  pointer-events: none;
+}
+
 .button-group-top, .button-group-bottom {
   display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;
 }
@@ -67,37 +104,34 @@ button:hover { background: var(--line); }
   border-radius: 6px; border: 1px solid var(--line);
   min-height: 100px; resize: vertical;
 }
+
 /* Info popup box */
 .info-box-toggle {
   position: relative;
   display: inline-block;
   cursor: pointer;
 }
-
 .info-box-toggle i {
   font-size: 16px;
-  color: #fff; /* keep icon visible */
+  color: #fff;
 }
-
 .info-box {
-  display: none; /* hidden by default */
+  display: none;
   position: absolute;
   top: 25px;
   left: 50%;
   transform: translateX(-50%);
-  background: #fff; /* white background */
-  color: #000;     /* black text */
+  background: #fff;
+  color: #000;
   border: 1px solid #ccc;
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 12px;
-  width: 150px; /* compact width */
+  width: 150px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.2);
   z-index: 100;
   text-align: left;
 }
-
 .info-box-toggle.active .info-box {
   display: block;
 }
-

@@ -1,414 +1,227 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+include "../config/db.php";
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit;
 }
-include "../config/db.php";
 
-$song_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$songId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-$stmt = $conn->prepare("SELECT * FROM songs WHERE id = ?");
-$stmt->bind_param("i", $song_id);
+$stmt = $conn->prepare("
+    SELECT s.*, u.name as creator_name, u.email as creator_email
+    FROM songs s
+    LEFT JOIN users u ON s.user_id = u.id
+    WHERE s.id = ?
+");
+$stmt->bind_param("i", $songId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo "<script>alert('Song not found'); window.location.href='song.php';</script>";
+    echo "<script>alert('Song not found'); window.location.href='dashboard.php';</script>";
     exit;
 }
 
 $song = $result->fetch_assoc();
+$parts = json_decode($song['parts'], true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($song['title']); ?> - View Song</title>
-    <link rel="stylesheet" href="../frontend/assets/css/create.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <style>
-        .song-view-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .song-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
-            border-radius: 12px;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        .song-header h1 {
-            margin: 0 0 10px 0;
-            font-size: 32px;
-        }
-        
-        .song-meta {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-top: 15px;
-        }
-        
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .audio-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        
-        /* Audio Player Styles */
-        .audio-player-container {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .play-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #4ade80;
-            border: none;
-            color: #000;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .play-btn:hover {
-            background: #22c55e;
-            transform: scale(1.05);
-        }
-        
-        .time-display {
-            color: #b5b5b5;
-            font-size: 14px;
-            min-width: 100px;
-        }
-        
-        .progress-bar-container {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: #4ade80;
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s;
-        }
-        
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .volume-slider {
-            width: 80px;
-        }
-        
-        /* Lyrics Display */
-        .lyrics-container {
-            background: #f5f5f5;
-            border-radius: 12px;
-            padding: 30px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .lyrics-container.synced {
-            background: #1a1a1a;
-        }
-        
-        .lyric-line {
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            transition: all 0.3s;
-            color: #333;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        .lyrics-container.synced .lyric-line {
-            color: #666;
-        }
-        
-        .lyric-line.active {
-            background: #4ade80;
-            color: #000;
-            font-weight: 600;
-            transform: scale(1.02);
-        }
-        
-        .static-lyrics {
-            white-space: pre-wrap;
-            color: #333;
-            line-height: 1.8;
-            font-size: 16px;
-        }
-        
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff;
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            margin-bottom: 20px;
-            transition: all 0.2s;
-        }
-        
-        .back-btn:hover {
-            background: #f0f0f0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?php echo htmlspecialchars($song['title']); ?> - Admin Panel</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="../frontend/assets/css/user.css">
+  <style>
+    .song-view-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .song-header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .song-header h1 {
+      margin: 0 0 8px 0;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .public-badge {
+      background: #4ade80;
+      color: #000;
+    }
+    .private-badge {
+      background: #888;
+      color: #000;
+    }
+    .song-header .subtitle {
+      color: var(--dim);
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .song-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--dim);
+    }
+    .song-part {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .part-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .part-text {
+      color: var(--text);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      font-size: 15px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bar);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      transition: 0.2s;
+      margin-bottom: 20px;
+    }
+    .back-btn:hover {
+      background: var(--line);
+    }
+  </style>
 </head>
 <body>
-    <div class="song-view-container">
-        <a href="song.php" class="back-btn">
-            <i class="fa-solid fa-arrow-left"></i> Back to Songs
-        </a>
 
-        <div class="song-header">
-            <h1><?php echo htmlspecialchars($song['title']); ?></h1>
-            <div class="song-meta">
-                <div class="meta-item">
-                    <i class="fa-solid fa-user"></i>
-                    <span><?php echo htmlspecialchars($song['artist']); ?></span>
-                </div>
-                <?php if ($song['album']): ?>
-                <div class="meta-item">
-                    <i class="fa-solid fa-compact-disc"></i>
-                    <span><?php echo htmlspecialchars($song['album']); ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if ($song['has_audio']): ?>
-                <div class="audio-badge">
-                    <i class="fa-solid fa-headphones"></i> Audio Available
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <?php if ($song['has_audio']): ?>
-        <!-- Audio Player -->
-        <div class="audio-player-container">
-            <div class="audio-controls">
-                <button class="play-btn" id="playBtn">
-                    <i class="fa-solid fa-play"></i>
-                </button>
-                <span class="time-display">
-                    <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
-                </span>
-                <div class="progress-bar-container" id="progressContainer">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="volume-control">
-                    <i class="fa-solid fa-volume-up"></i>
-                    <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider">
-                </div>
-            </div>
-            <audio id="audioPlayer" preload="metadata">
-                <source src="../uploads/audio/<?php echo htmlspecialchars($song['audio_file']); ?>" type="audio/mpeg">
-            </audio>
-        </div>
-
-        <!-- Synced Lyrics -->
-        <div class="lyrics-container synced" id="lyricsContainer">
-            <!-- Lyrics will be populated by JavaScript -->
-        </div>
-        <?php else: ?>
-        <!-- Static Lyrics -->
-        <div class="lyrics-container">
-            <pre class="static-lyrics"><?php echo htmlspecialchars($song['lyrics']); ?></pre>
-        </div>
-        <?php endif; ?>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <img src="../frontend/assets/images/transparent_logo.png" alt="Logo" class="logo">
+    
+    <div class="nav-item" data-page="dashboard.php">
+      <i class="fa-solid fa-music icon"></i>
+      <span>Songs</span>
     </div>
+    
+    <div class="nav-item" data-page="create_song.php">
+      <i class="fa-solid fa-plus icon"></i>
+      <span>Create Song</span>
+    </div>
+    
+    <div class="nav-item" data-page="users.php">
+      <i class="fa-solid fa-users icon"></i>
+      <span>Users</span>
+    </div>
+    
+    <i class="fa-solid fa-bars icon" style="cursor: pointer;"></i>
+  </nav>
 
-    <?php if ($song['has_audio']): ?>
-    <script>
-        const audioPlayer = document.getElementById('audioPlayer');
-        const playBtn = document.getElementById('playBtn');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const progressBar = document.getElementById('progressBar');
-        const progressContainer = document.getElementById('progressContainer');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const lyricsContainer = document.getElementById('lyricsContainer');
+  <!-- Dropdown Menu -->
+  <ul class="dropdown-menu" id="dropdownMenu">
+    <li data-link="dashboard.php">
+      <i class="fa-solid fa-music"></i>
+      <span>Songs</span>
+    </li>
+    <li data-link="create_song.php">
+      <i class="fa-solid fa-plus"></i>
+      <span>Create Song</span>
+    </li>
+    <li data-link="users.php">
+      <i class="fa-solid fa-users"></i>
+      <span>Users</span>
+    </li>
+    <li class="logout" data-link="../auth/logout.php">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Logout</span>
+    </li>
+  </ul>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    <div class="song-view-container">
+      <a href="dashboard.php" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </a>
+      
+      <div class="song-header">
+        <h1>
+          <?php echo htmlspecialchars($song['title']); ?>
+          <?php if ($song['is_public'] == 1): ?>
+            <span class="badge public-badge">PUBLIC</span>
+          <?php else: ?>
+            <span class="badge private-badge">PRIVATE</span>
+          <?php endif; ?>
+        </h1>
+        <?php if ($song['subtitle']): ?>
+          <div class="subtitle"><?php echo htmlspecialchars($song['subtitle']); ?></div>
+        <?php endif; ?>
         
-        let lrcData = [];
-        let currentLineIndex = -1;
+        <div class="song-meta">
+          <div class="meta-item">
+            <i class="fa-solid fa-user"></i>
+            <span><?php echo htmlspecialchars($song['creator_name'] ?? 'Unknown'); ?></span>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-envelope"></i>
+            <span><?php echo htmlspecialchars($song['creator_email'] ?? 'N/A'); ?></span>
+          </div>
+          <div class="meta-item">
+            <i class="fa-solid fa-calendar"></i>
+            <span><?php echo date('M d, Y', strtotime($song['created_at'])); ?></span>
+          </div>
+        </div>
+      </div>
+      
+      <?php if ($parts && is_array($parts)): ?>
+        <?php foreach ($parts as $part): ?>
+          <div class="song-part">
+            <div class="part-label"><?php echo htmlspecialchars($part['label']); ?></div>
+            <div class="part-text"><?php echo htmlspecialchars($part['text']); ?></div>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <div class="song-part">
+          <div class="part-text">No lyrics available</div>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
 
-        // Load LRC file
-        fetch('../uploads/lyrics/<?php echo htmlspecialchars($song['lrc_file']); ?>')
-            .then(response => response.text())
-            .then(lrcContent => {
-                lrcData = parseLRC(lrcContent);
-                displayLyrics();
-            })
-            .catch(error => {
-                console.error('Error loading LRC file:', error);
-                lyricsContainer.innerHTML = '<p style="color: #ff6b6b;">Error loading synced lyrics</p>';
-            });
-
-        // Parse LRC format
-        function parseLRC(lrcText) {
-            const lines = lrcText.split('\n');
-            const parsed = [];
-            
-            lines.forEach(line => {
-                const match = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
-                if (match) {
-                    const minutes = parseInt(match[1]);
-                    const seconds = parseInt(match[2]);
-                    const milliseconds = parseInt(match[3].padEnd(3, '0'));
-                    const text = match[4].trim();
-                    
-                    const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
-                    
-                    if (text) {
-                        parsed.push({ time: timeInSeconds, text: text });
-                    }
-                }
-            });
-            
-            return parsed.sort((a, b) => a.time - b.time);
-        }
-
-        // Display lyrics
-        function displayLyrics() {
-            lyricsContainer.innerHTML = '';
-            lrcData.forEach((line, index) => {
-                const lineEl = document.createElement('div');
-                lineEl.className = 'lyric-line';
-                lineEl.textContent = line.text;
-                lineEl.dataset.index = index;
-                lyricsContainer.appendChild(lineEl);
-            });
-        }
-
-        // Play/Pause
-        playBtn.addEventListener('click', () => {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-            } else {
-                audioPlayer.pause();
-                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-            }
-        });
-
-        // Update duration
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(audioPlayer.duration);
-        });
-
-        // Update time and sync lyrics
-        audioPlayer.addEventListener('timeupdate', () => {
-            const currentTime = audioPlayer.currentTime;
-            const duration = audioPlayer.duration;
-            
-            // Update time display
-            currentTimeEl.textContent = formatTime(currentTime);
-            
-            // Update progress bar
-            const progressPercent = (currentTime / duration) * 100;
-            progressBar.style.width = progressPercent + '%';
-            
-            // Sync lyrics
-            syncLyrics(currentTime);
-        });
-
-        // Sync lyrics with audio
-        function syncLyrics(currentTime) {
-            let activeIndex = -1;
-            
-            for (let i = 0; i < lrcData.length; i++) {
-                if (currentTime >= lrcData[i].time) {
-                    activeIndex = i;
-                } else {
-                    break;
-                }
-            }
-            
-            if (activeIndex !== currentLineIndex) {
-                // Remove previous active
-                const prevActive = lyricsContainer.querySelector('.lyric-line.active');
-                if (prevActive) {
-                    prevActive.classList.remove('active');
-                }
-                
-                // Add new active
-                if (activeIndex >= 0) {
-                    const activeLine = lyricsContainer.querySelector(`[data-index="${activeIndex}"]`);
-                    if (activeLine) {
-                        activeLine.classList.add('active');
-                        // Auto scroll
-                        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-                
-                currentLineIndex = activeIndex;
-            }
-        }
-
-        // Seek
-        progressContainer.addEventListener('click', (e) => {
-            const rect = progressContainer.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const width = rect.width;
-            const percentage = clickX / width;
-            audioPlayer.currentTime = percentage * audioPlayer.duration;
-        });
-
-        // Volume
-        volumeSlider.addEventListener('input', (e) => {
-            audioPlayer.volume = e.target.value / 100;
-        });
-        audioPlayer.volume = 0.8;
-
-        // Format time helper
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        // Auto play next line hint
-        audioPlayer.addEventListener('ended', () => {
-            playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-        });
-    </script>
-    <?php endif; ?>
+  <script src="../frontend/assets/js/user.js"></script>
 </body>
 </html>

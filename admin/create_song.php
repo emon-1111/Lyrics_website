@@ -11,7 +11,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Song - Lyrics Only</title>
+  <title>Create Song - Admin Panel</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
   <link rel="stylesheet" href="../frontend/assets/css/user.css">
@@ -106,7 +106,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
       <span>Songs</span>
     </div>
     
-    <div class="nav-item" data-page="create_song_choice.php">
+    <div class="nav-item" data-page="create_song.php">
       <i class="fa-solid fa-plus icon"></i>
       <span>Create Song</span>
     </div>
@@ -125,7 +125,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
       <i class="fa-solid fa-music"></i>
       <span>Songs</span>
     </li>
-    <li data-link="create_song_choice.php">
+    <li data-link="create_song.php">
       <i class="fa-solid fa-plus"></i>
       <span>Create Song</span>
     </li>
@@ -142,7 +142,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   <!-- Page Content -->
   <div class="page-content create-page">
     <div class="create-container">
-      <h1 style="font-size: 28px; margin-bottom: 20px;">Create New Song (Lyrics Only)</h1>
+      <h1 style="font-size: 28px; margin-bottom: 20px;">Create New Song</h1>
       
       <form id="song-form" method="POST" action="save_song.php">
         
@@ -174,9 +174,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
             <textarea class="part-textarea" placeholder="Enter lyrics here..."></textarea>
           </div>
         </div>
-
-        <!-- Hidden field to mark as lyrics-only (no audio) -->
-        <input type="hidden" name="has_audio" value="0">
         
         <div class="button-group-bottom">
           <button type="button" id="reset-btn">

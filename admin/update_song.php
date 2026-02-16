@@ -19,14 +19,25 @@ if (!$song_id || empty($title)) {
     exit;
 }
 
-// Only edit admin's OWN public songs — cannot touch user songs
-$stmt = $conn->prepare("UPDATE songs SET title=?, subtitle=?, genre=?, parts=?, is_public=1 WHERE id=? AND user_id=? AND is_public=1");
+// Verify song belongs to this admin and is public
+$check = $conn->prepare("SELECT id FROM songs WHERE id = ? AND user_id = ? AND is_public = 1");
+$check->bind_param("ii", $song_id, $admin_id);
+$check->execute();
+$exists = $check->get_result()->fetch_assoc();
+
+if (!$exists) {
+    echo json_encode(['success' => false, 'message' => 'Song not found or not authorized']);
+    exit;
+}
+
+// Update — no affected_rows check, execute() success is enough
+$stmt = $conn->prepare("UPDATE songs SET title=?, subtitle=?, genre=?, parts=?, is_public=1 WHERE id=? AND user_id=?");
 $stmt->bind_param("ssssii", $title, $subtitle, $genre, $parts, $song_id, $admin_id);
 
-if ($stmt->execute() && $stmt->affected_rows > 0) {
+if ($stmt->execute()) {
     echo json_encode(['success' => true]);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Update failed or not authorized']);
+    echo json_encode(['success' => false, 'message' => 'DB error: ' . $conn->error]);
 }
 
 $stmt->close();

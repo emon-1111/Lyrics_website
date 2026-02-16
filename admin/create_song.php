@@ -107,31 +107,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         <label>Subtitle (Optional)</label>
         <input type="text" name="subtitle" placeholder="Artist name or album">
 
-        <label>Genre (Optional)</label>
-        <div class="select-wrapper">
-          <select name="genre">
-            <option value="">— Select a genre —</option>
-            <option value="Pop">Pop</option>
-            <option value="Rock">Rock</option>
-            <option value="Hip-Hop">Hip-Hop</option>
-            <option value="R&B">R&B</option>
-            <option value="Country">Country</option>
-            <option value="Jazz">Jazz</option>
-            <option value="Blues">Blues</option>
-            <option value="Classical">Classical</option>
-            <option value="Electronic">Electronic</option>
-            <option value="Folk">Folk</option>
-            <option value="Reggae">Reggae</option>
-            <option value="Soul">Soul</option>
-            <option value="Punk">Punk</option>
-            <option value="Metal">Metal</option>
-            <option value="Gospel">Gospel</option>
-            <option value="Latin">Latin</option>
-            <option value="Worship">Worship</option>
-            <option value="Other">Other</option>
-          </select>
-          <i class="fa-solid fa-chevron-down select-arrow"></i>
-        </div>
+            <label>Genre (Optional)</label>
+      <div class="select-wrapper">
+        <select name="genre">
+          <option value="">— Select a genre —</option>
+          <option value="Pop">Pop</option>
+          <option value="Rock">Rock</option>
+          <option value="Hip-Hop">Hip-Hop</option>
+          <option value="Classical">Classical</option>
+          <option value="Jazz">Jazz</option>
+          <option value="Country">Country</option>
+        </select>
+        <i class="fa-solid fa-chevron-down select-arrow"></i>
+      </div>
 
         <div class="button-group-top">
           <button type="button" id="duplicate-part">

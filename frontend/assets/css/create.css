@@ -24,18 +24,34 @@ body {
   border: 1px solid var(--line);
 }
 
-.create-container label { display: block; margin-top: 15px; margin-bottom: 5px; font-weight: 500; }
-.create-container input[type="text"] {
-  width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line);
-  background: var(--bar); color: var(--text);
+.create-container label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: 500;
 }
-.create-container input[disabled] { background: #333; color: #aaa; }
+
+.create-container input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bar);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.create-container input[disabled] {
+  background: #333;
+  color: #aaa;
+}
 
 /* Select / Genre dropdown */
 .select-wrapper {
   position: relative;
   width: 100%;
 }
+
 .select-wrapper select {
   width: 100%;
   padding: 8px 36px 8px 10px;
@@ -47,17 +63,24 @@ body {
   font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   cursor: pointer;
   transition: border-color 0.2s;
+  box-sizing: border-box;
+  /* Force dark background on all browsers */
+  color-scheme: dark;
 }
+
 .select-wrapper select:focus {
   outline: none;
   border-color: #444;
 }
+
 .select-wrapper select option {
-  background: var(--card);
-  color: var(--text);
+  background: #141414;
+  color: #fff;
 }
+
 .select-arrow {
   position: absolute;
   right: 12px;
@@ -68,10 +91,21 @@ body {
   pointer-events: none;
 }
 
-.button-group-top, .button-group-bottom {
-  display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px;
+.button-group-top,
+.button-group-bottom {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 15px;
 }
-.button-group-bottom { margin-top: 10px; }
+
+.button-group-top {
+  margin-top: 15px;
+}
+
+.button-group-bottom {
+  margin-top: 10px;
+}
 
 button {
   background: var(--bar);
@@ -83,26 +117,60 @@ button {
   font-weight: 500;
   transition: 0.2s;
 }
-button:hover { background: var(--line); }
+
+button:hover {
+  background: var(--line);
+}
 
 .part-container {
-  margin-top: 20px; border: 1px solid var(--line); border-radius: 8px;
-  padding: 10px; position: relative; background: var(--bg);
+  margin-top: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  position: relative;
+  background: var(--bg);
 }
-.part-header { display: flex; align-items: center; gap: 10px; }
+
+.part-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .part-header input {
-  flex: 1; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line);
-  background: var(--bar); color: var(--text);
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bar);
+  color: var(--text);
 }
-.part-actions { display: flex; gap: 5px; }
-.part-actions button { padding: 4px 6px; font-size: 12px; }
-.part-actions button i { pointer-events: none; }
+
+.part-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.part-actions button {
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.part-actions button i {
+  pointer-events: none;
+}
 
 .part-textarea {
-  width: 100%; margin-top: 8px; padding: 8px;
-  background: var(--bar); color: var(--text);
-  border-radius: 6px; border: 1px solid var(--line);
-  min-height: 100px; resize: vertical;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--bar);
+  color: var(--text);
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  min-height: 100px;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
 /* Info popup box */
@@ -111,10 +179,12 @@ button:hover { background: var(--line); }
   display: inline-block;
   cursor: pointer;
 }
+
 .info-box-toggle i {
   font-size: 16px;
   color: #fff;
 }
+
 .info-box {
   display: none;
   position: absolute;
@@ -132,6 +202,7 @@ button:hover { background: var(--line); }
   z-index: 100;
   text-align: left;
 }
+
 .info-box-toggle.active .info-box {
   display: block;
 }
